@@ -1,8 +1,8 @@
-<script src="{{ asset('davilla/js/jquery.js') }}') }}"></script> 
-<script src="{{ asset('davilla/js/popper.min.js') }}') }}"></script>
-<script src="{{ asset('davilla/js/bootstrap.min.js') }}') }}"></script>
+<script src="{{ asset('davilla/js/jquery.js') }}"></script> 
+<script src="{{ asset('davilla/js/popper.min.js') }}"></script>
+<script src="{{ asset('davilla/js/bootstrap.min.js') }}"></script>
 <!--Revolution Slider-->
-<script src="{{ asset('davilla/plugins/revolution/js/jquery.themepunch.revolution.min.js') }}') }}"></script>
+<script src="{{ asset('davilla/plugins/revolution/js/jquery.themepunch.revolution.min.js') }}"></script>
 <script src="{{ asset('davilla/plugins/revolution/js/jquery.themepunch.tools.min.js') }}"></script>
 <script src="{{ asset('davilla/plugins/revolution/js/extensions/revolution.extension.actions.min.js') }}"></script>
 <script src="{{ asset('davilla/plugins/revolution/js/extensions/revolution.extension.carousel.min.js') }}"></script>

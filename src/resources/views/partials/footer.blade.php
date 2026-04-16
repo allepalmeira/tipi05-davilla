@@ -1,9 +1,15 @@
     <!-- Main Footer -->
     <footer class="main-footer">
         <div class="shape_wrapper shape_one">
-            <div class="shape_inner" style="background-image: url(https://via.placeholder.com/1920x600);">
+
+            @php
+                $footerBg = asset('davilla/images/main-footer-1.png');
+            @endphp
+
+            <div class="shape-inner" style="background-image: url('{{ $footerBg }}');">
                 <div class="overlay"></div>
             </div>
+
         </div>
 
         <!--Widgets Section-->
@@ -59,7 +65,7 @@
                     <div class="footer-column col-lg-4 col-md-12 col-sm-12">
                         <!--Footer Column-->
                         <div class="footer-widget logo-widget">
-                            <figure class="footer-logo"><img src="images/footer-logo.png" alt=""></figure>
+                            <figure class="footer-logo"><img src="{{ asset('davilla/images/footer-logo.png') }}" alt=""></figure>
                         </div>
                     </div>
 

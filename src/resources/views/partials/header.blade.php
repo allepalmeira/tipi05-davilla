@@ -6,7 +6,7 @@
         <!-- Main box -->
         <div class="main-box">
             <div class="menu-box">
-                <div class="logo"><a href="index.html"><img src="images/logo.png" alt="" title=""></a></div>
+                <div class="logo"><a href="index.html"><img src="{{ asset('davilla/images/logo-davilla.svg') }}" alt="" title=""></a></div>
 
                 <!--Nav Box-->
                 <div class="nav-outer clearfix">
@@ -92,7 +92,7 @@
                             <div class="shopping-cart">
                                 <ul class="shopping-cart-items">
                                     <li class="cart-item">
-                                        <img src="https://via.placeholder.com/300x300" alt="#" class="thumb" />
+                                        <img src="{{ asset('davilla/images/shopping-cart/shopping-cart-1.png')}}" alt="#" class="thumb" />
                                         <span class="item-name">Birthday Cake</span>
                                         <span class="item-quantity">1 x <span class="item-amount">$84.00</span></span>
                                         <a href="shop-single.html" class="product-detail"></a>
@@ -100,7 +100,7 @@
                                     </li>
 
                                     <li class="cart-item">
-                                        <img src="https://via.placeholder.com/300x300" alt="#" class="thumb" />
+                                        <img src="{{ asset('davilla/images/shopping-cart/shopping-cart-2.png')}}" alt="#" class="thumb" />
                                         <span class="item-name">French Macaroon</span>
                                         <span class="item-quantity">1 x <span class="item-amount">$13.00</span></span>
                                         <a href="shop-single.html" class="product-detail"></a>
@@ -130,7 +130,7 @@
             <div class="auto-container clearfix">
                 <!--Logo-->
                 <div class="logo">
-                    <a href="#" title="Sticky Logo"><img src="images/logo-small.png" alt="Sticky Logo"></a>
+                    <a href="#" title="Sticky Logo"><img src="{{ asset('davilla/images/logo-small.png') }}" alt="Sticky Logo"></a>
                 </div>
 
                 <!--Nav Outer-->
@@ -145,7 +145,7 @@
 
         <!-- Mobile Header -->
         <div class="mobile-header">
-            <div class="logo"><a href="index.html"><img src="images/logo-small.png" alt="" title=""></a></div>
+            <div class="logo"><a href="index.html"><img src="{{ asset('davilla/images/logo-small.png') }}" alt="" title=""></a></div>
 
             <!--Nav Box-->
             <div class="nav-outer clearfix">
@@ -156,7 +156,7 @@
         <!-- Mobile Menu  -->
         <div class="mobile-menu">
             <nav class="menu-box">
-                <div class="nav-logo"><a href="index.html"><img src="images/logo-small.png" alt="" title=""></a></div>
+                <div class="nav-logo"><a href="index.html"><img src="{{ asset('davilla/images/logo-small.png') }}" alt="" title=""></a></div>
                 <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
             </nav>
         </div><!-- End Mobile Menu -->

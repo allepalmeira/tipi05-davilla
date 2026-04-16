@@ -1,0 +1,9 @@
+.logo img {
+    margin-top: -15px;
+    width: 100%;
+    margin-left: -46px;
+}
+
+.service-block .image img {
+    height: stretch;
+}
