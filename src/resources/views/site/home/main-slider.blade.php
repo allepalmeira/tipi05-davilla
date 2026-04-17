@@ -61,7 +61,7 @@
                         data-paddingright="[0,0,0,0]"
                         data-paddingbottom="[0,0,0,0]"
                         data-paddingleft="[0,0,0,0]"
-                        style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342;font-family:ABeeZee;">We offer now a great range of different<br>flavoured bite-size pastries and cakes </div>
+                        style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342;font-family:ABeeZee;">Confeitaria saudável com mais sabor,<br> praticidade e charme em cada pedido</div>
 
                     <!-- LAYER NR. 4 -->
                     <div class="tp-caption   tp-resizeme" 
@@ -78,7 +78,7 @@
                         data-paddingright="[0,0,0,0]"
                         data-paddingbottom="[0,0,0,0]"
                         data-paddingleft="[0,0,0,0]"
-                        style="z-index: 8; min-width: 399px; max-width: 399px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342;font-family:Leckerli One;">Welcome <br>to Bellaria </div>
+                        style="z-index: 8; min-width: 399px; max-width: 399px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342;font-family:Leckerli One;">The Gusta <br>Confeitaria</div>
 
                     <!-- LAYER NR. 5 -->
                     <div class="tp-caption   tp-resizeme" 
@@ -189,7 +189,7 @@
                             data-paddingright="[0,0,0,0]"
                             data-paddingbottom="[0,0,0,0]"
                             data-paddingleft="[0,0,0,0]"
-                            style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342;font-family:ABeeZee;">We offer now a great range of different<br> flavoured bite-size pastries and cakes </div>
+                            style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342;font-family:ABeeZee;">Sabores leves, bonitos e irresistíveis<br> para o seu dia a dia ou comemoração</div>
 
                         <!-- LAYER NR. 11 -->
                         <div class="tp-caption   tp-resizeme" 
@@ -206,7 +206,7 @@
                             data-paddingright="[0,0,0,0]"
                             data-paddingbottom="[0,0,0,0]"
                             data-paddingleft="[0,0,0,0]"
-                            style="z-index: 8; min-width: 441px; max-width: 441px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342; font-family:Leckerli One;">Welcome <br>to Bellaria </div>
+                            style="z-index: 8; min-width: 441px; max-width: 441px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342; font-family:Leckerli One;">The Gusta <br>Confeitaria</div>
 
                         <!-- LAYER NR. 12 -->
                         <div class="tp-caption   tp-resizeme" 
@@ -317,7 +317,7 @@
                             data-paddingright="[0,0,0,0]"
                             data-paddingbottom="[0,0,0,0]"
                             data-paddingleft="[0,0,0,0]"
-                            style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342; font-family:ABeeZee;">We offer now a great range of different<br> flavoured bite-size pastries and cakes </div>
+                            style="z-index: 7; white-space: nowrap; font-size: 16px; line-height: 24px; font-weight: 400; color: #4b4342; font-family:ABeeZee;">Delícias saudáveis feitas com carinho<br> para adoçar seus momentos especiais</div>
 
                         <!-- LAYER NR. 18 -->
                         <div class="tp-caption   tp-resizeme" 
@@ -334,7 +334,7 @@
                             data-paddingright="[0,0,0,0]"
                             data-paddingbottom="[0,0,0,0]"
                             data-paddingleft="[0,0,0,0]"
-                            style="z-index: 8; min-width: 394px; max-width: 394px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342;font-family:Leckerli One;">Welcome <br>to Bellaria </div>
+                            style="z-index: 8; min-width: 394px; max-width: 394px; white-space: normal; font-size: 72px; line-height: 72px; font-weight: 400; color: #4b4342;font-family:Leckerli One;">The Gusta <br>Confeitaria</div>
 
                         <!-- LAYER NR. 19 -->
                         <div class="tp-caption   tp-resizeme" 

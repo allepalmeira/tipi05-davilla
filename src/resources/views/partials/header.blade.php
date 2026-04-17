@@ -156,7 +156,7 @@
         <!-- Mobile Menu  -->
         <div class="mobile-menu">
             <nav class="menu-box">
-                <div class="nav-logo"><a href="index.html"><img src="{{ asset('davilla/images/logo-small.png') }}" alt="" title=""></a></div>
+                <div class="nav-logo"><a href="index.html"><img src="{{ asset('davilla/images/the-gusta-texto.svg') }}" alt="" title=""></a></div>
                 <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
             </nav>
         </div><!-- End Mobile Menu -->
