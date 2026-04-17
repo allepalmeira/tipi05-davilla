@@ -65,7 +65,7 @@
                     <div class="footer-column col-lg-4 col-md-12 col-sm-12">
                         <!--Footer Column-->
                         <div class="footer-widget logo-widget">
-                            <figure class="footer-logo"><img src="{{ asset('davilla/images/footer-logo.png') }}" alt=""></figure>
+                            <figure class="footer-logo"><img src="{{ asset('davilla/images/the-gusta-logo.svg') }}" alt=""></figure>
                         </div>
                     </div>
 

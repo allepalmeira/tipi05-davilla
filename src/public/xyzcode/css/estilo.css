@@ -1,7 +1,13 @@
 .logo img {
-    margin-top: -15px;
+    margin-top: 10px;
     width: 100%;
     margin-left: -46px;
+}
+
+.sticky-header .logo img {    
+    margin-top: -10px;
+    width: 30%;
+    margin-left: 37px;
 }
 
 .service-block .image img {
