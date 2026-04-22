@@ -12,5 +12,9 @@ class HomeController extends Controller
         return view('site.home.home');
     }
 
+    public function teste(){
+        
+    }
+
 
 }

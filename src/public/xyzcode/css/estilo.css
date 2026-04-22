@@ -1,6 +1,10 @@
+.logo{
+    width: 200px;
+}
+
 .logo img {
     margin-top: 20px;
-    width: 70%;
+    width: 100%;
     margin-left: -14px;
 }
 
