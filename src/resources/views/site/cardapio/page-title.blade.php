@@ -1,13 +1,10 @@
     <!--Page Title-->
-    @php
-    $pageTitle = asset('davilla/images/34.jpg');
-    @endphp
-    <section class="page-title" style="background-image:url('{{ $pageTitle }}')">
+    <section class="page-title" style="background-image:url(https://via.placeholder.com/1920x400)">
         <div class="auto-container">
-            <h1>About Us</h1>
+            <h1>Portfolio with Filter</h1>
             <ul class="page-breadcrumb">
                 <li><a href="index.html">home</a></li>
-                <li>About Us</li>
+                <li>Portfolio with Filter</li>
             </ul>
         </div>
     </section>

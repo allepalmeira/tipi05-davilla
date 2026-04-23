@@ -1,15 +1,12 @@
     <!-- Main Footer -->
+    @php
+    $footerBg = asset('davilla/images/35.jpg');
+    @endphp
     <footer class="main-footer">
         <div class="shape_wrapper shape_one">
-
-            @php
-                $footerBg = asset('davilla/images/main-footer-1.png');
-            @endphp
-
-            <div class="shape-inner" style="background-image: url('{{ $footerBg }}');">
+            <div class="shape_inner" style="background-image: url('{{ $footerBg }}');">
                 <div class="overlay"></div>
             </div>
-
         </div>
 
         <!--Widgets Section-->
@@ -86,7 +83,7 @@
                                         <div class="response"></div>
                                     </div>
                                     <div class="form-group">
-                                        <input type="email" name="email" class="email" value="" placeholder="Your Email Address" required>
+                                        <input type="email" name="email" class="email" value="" placeholder="Your Email Address" required="">
                                         <button type="button" id="subscribe-newslatters" class="theme-btn"><span class="flaticon-note"></span></button>
                                     </div>
                                 </form>
@@ -106,4 +103,3 @@
             </div>
         </div>
     </footer>
-    <!-- End Footer -->

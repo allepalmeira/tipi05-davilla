@@ -1,7 +1,12 @@
     <!-- Testimonial Section -->
+    @php
+    $testimonial = asset('davilla/images/3.jpg');
+    @endphp
     <section class="testimonial-section style-two">
         <div class="shape_wrapper shape_one">
-            <div class="shape_inner shape_two" style="background-image: url(https://via.placeholder.com/1920x1080);"><div class="overlay"></div></div>
+            <div class="shape_inner shape_two" style="background-image: url('{{ $testimonial }}');">
+                <div class="overlay"></div>
+            </div>
         </div>
 
         <div class="auto-container">
