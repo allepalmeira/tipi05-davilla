@@ -10,4 +10,6 @@ class CardapioController extends Controller
     {
         return view('site.cardapio.cardapio');
     }
+
+    
 }
