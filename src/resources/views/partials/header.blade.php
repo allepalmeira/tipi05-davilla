@@ -18,7 +18,11 @@
                                 <li><a href="{{ route('sobre') }}">Sobre</a></li>
                                 <li class="dropdown"><a href="{{ route('cardapio.index') }}">Cardápio</a>
                                     <ul>
-                                        <li><a href="#">Cardápio 1</a></li>
+                                        @forelse($lista as $linha)
+                                        <li><a href="{{ route('cardapio.categoria',$linha->id_categoria) }}">{{ $linha->nome_categoria }}</a></li>
+                                        @Empty
+                                        <li>Nenhuma Categoria</li>
+                                        @endforelse
                                     </ul>
                                 </li>
                             </ul>
