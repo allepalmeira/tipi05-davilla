@@ -7,7 +7,7 @@
 
             <div class="sec-title text-center">
                 <div class="divider"><img src="{{ asset('davilla/images/icons/divider_1.png') }}" alt=""></div>
-                <h2>Our Specialties</h2>
+                <h2>Nossas Especialidades</h2>
             </div>
             <!-- Services Carousel -->
             <div class="services-carousel owl-carousel owl-theme">
@@ -21,8 +21,8 @@
                             <!-- cake img -->
                             <figure class="image"><img src="{{ asset('davilla/images/services/services-2.svg') }}" alt=""></figure>
                         </div>
-                        <h3>Occasion Cakes</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing.</p>
+                        <h3>Bolos para Ocasiões Especiais</h3>
+                        <p>Encomendas feitas com carinho para aniversários, celebrações e momentos que merecem um toque especial.</p>
                     </div>
                 </div>
 
@@ -37,7 +37,7 @@
                             <figure class="image"><img src="{{ asset('davilla/images/services/services-3.svg') }}" alt=""></figure>
                         </div>
                         <h3>Cupcakes</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing.</p>
+                        <p>Opções delicadas e saborosas, perfeitas para presentear, comemorar ou tornar o dia mais leve e gostoso.</p>
                     </div>
                 </div>
 
@@ -52,7 +52,7 @@
                             <figure class="image"><img src="{{ asset('davilla/images/services/services-4.svg') }}" alt=""></figure>
                         </div>
                         <h3>Macarons</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing.</p>
+                        <p>Pequenos detalhes que encantam no visual e no sabor, ideais para compor mesas especiais e presentes sofisticados.</p>
                     </div>
                 </div>
 
