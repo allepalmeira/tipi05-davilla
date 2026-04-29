@@ -21,3 +21,8 @@
 .service-block .image img {
     height: stretch;
 }
+
+
+.theme-btn.large {
+    width: 350px;
+}

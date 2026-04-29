@@ -81,7 +81,7 @@
             </div>
 
             <div class="btn-box">
-                <a href="#" class="theme-btn btn-style-two large"><span></span>Know Us Better<span></span></a>
+                <a href="{{ route('sobre') }}" class="theme-btn btn-style-two large"><span></span>Conheça a The Gusta<span></span></a>
             </div>
         </div>
     </div>

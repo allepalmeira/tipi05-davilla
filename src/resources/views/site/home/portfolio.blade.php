@@ -3,14 +3,18 @@
         <div class="auto-container">
             <div class="sec-title text-center">
                 <div class="divider"><img src="{{ asset('davilla/images/icons/divider_1.png') }}" alt=""></div>
-                <h2>Our Creations</h2>
+                <span class="sub-title">Nossa vitrine</span>
+                <h2>Nossas Delícias Especiais</h2>
+                <p>Conheça algumas das criações da The Gusta, preparadas com carinho para unir sabor, leveza e uma apresentação que encanta em cada detalhe.</p>
             </div>
 
             <div class="row">
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-1.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-1.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -26,7 +30,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-2.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-2.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -42,7 +48,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-3.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-3.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -58,7 +66,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-4.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-4.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -74,7 +84,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-1.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-1.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -90,7 +102,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-2.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-2.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -106,7 +120,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-3.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-3.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">
@@ -122,7 +138,9 @@
                 <!-- Portfolio Block -->
                 <div class="portfolio-block col-lg-3 col-md-6 col-sm-12">
                     <div class="inner-box">
-                        <div class="image-box"><figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-4.png') }}" alt=""></figure></div>
+                        <div class="image-box">
+                            <figure class="image"><img src="{{ asset('davilla/images/portfolio/portfolio-4.png') }}" alt=""></figure>
+                        </div>
                         <div class="portfolio-hover">
                             <div class="hover-effect">
                                 <svg x="0px" y="0px" viewBox="79 -202.7 1000 1000">

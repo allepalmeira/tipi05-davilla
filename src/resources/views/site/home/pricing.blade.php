@@ -3,7 +3,7 @@
         <div class="auto-container">
             <div class="sec-title text-center">
                 <div class="divider"><img src="{{ asset('davilla/images/icons/divider_1.png') }}" alt=""></div>
-                <h2>Our Prices</h2>
+                <h2>Sabores e Valores</h2>
             </div>
 
             <div class="row">
@@ -32,7 +32,7 @@
                             </ul>
                         </div>
                         <div class="table-footer">
-                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Order Now<span></span></a>
+                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Encomende agora<span></span></a>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                             </ul>
                         </div>
                         <div class="table-footer">
-                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Order Now<span></span></a>
+                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Encomende agora<span></span></a>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                             </ul>
                         </div>
                         <div class="table-footer">
-                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Order Now<span></span></a>
+                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Encomende agora<span></span></a>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                             </ul>
                         </div>
                         <div class="table-footer">
-                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Order Now<span></span></a>
+                            <a href="#" class="theme-btn btn-style-two regular"><span></span>Encomende agora<span></span></a>
                         </div>
                     </div>
                 </div>

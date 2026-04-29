@@ -21,7 +21,7 @@
                             <!-- cake img -->
                             <figure class="image"><img src="{{ asset('davilla/images/services/services-2.svg') }}" alt=""></figure>
                         </div>
-                        <h3>Bolos para Ocasiões Especiais</h3>
+                        <h3>Bolos Fit</h3>
                         <p>Encomendas feitas com carinho para aniversários, celebrações e momentos que merecem um toque especial.</p>
                     </div>
                 </div>

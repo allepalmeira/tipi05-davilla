@@ -6,7 +6,7 @@
 
         <div class="auto-container">
             <div class="sec-title light text-center">
-                <h2>Clients Say</h2>
+                <h2>Quem Provou, Recomenda</h2>
             </div>
 
             <!-- Testimonial Carousel -->

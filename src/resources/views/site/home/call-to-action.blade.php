@@ -20,10 +20,10 @@
                     <!-- cake img -->
                     <div class="icon icon_heart"></div>
                 </div>
-                <h1>Magic Processing</h1>
-                <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent molestie eu turpis nec<br> molestie. Nam auctor magna mauris, non lacinia felis mattis nec.</p>
+                <h1>Saudável com sabor de verdade</h1>
+                <p>Na The Gusta, cada detalhe é pensado para unir beleza, cuidado e praticidade. Conheça nossas opções de bolos, doces e encomendas especiais para adoçar o seu dia com equilíbrio e muito carinho.</p>
                 <div class="btn-box">
-                    <a href="#" class="theme-btn btn-style-one large"><span></span>Discover More<span></span></a>
+                    <a href="{{ route('cardapio.index') }}" class="theme-btn btn-style-one large"><span></span>Ver Cardápio<span></span></a>
                 </div>
             </div>
         </div>
