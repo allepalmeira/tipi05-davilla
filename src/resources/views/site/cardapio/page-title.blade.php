@@ -1,5 +1,8 @@
     <!--Page Title-->
-    <section class="page-title" style="background-image:url(https://via.placeholder.com/1920x400)">
+    @php
+    $pageTitle = asset('davilla/images/34.jpg');
+    @endphp
+    <section class="page-title" style="background-image:url('{{ $pageTitle }}')">
         <div class="auto-container">
             <h1>Portfolio with Filter</h1>
             <ul class="page-breadcrumb">

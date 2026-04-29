@@ -2,7 +2,7 @@
     <section class="contact-section">
         <div class="auto-container">
             <div class="sec-title text-center">
-                <div class="divider"><img src="images/icons/divider_1.png" alt=""></div>
+                <div class="divider"><img src="{{ asset('davilla/images/icons/divider_1.png') }}" alt=""></div>
                 <h2>Our Contacts</h2>
                 <div class="text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse nisi et dolor ornare pellentesque. Nullam porttitor,<br> odio id facilisis, mauris dolor rhoncus elit, ultricies nulla eros at dui. In suscipit leo sagittis aliquam.</div>
             </div>
@@ -11,7 +11,7 @@
                 <div class="column col-xl-3 col-lg-6 col-md-6 col-sm-12">
                     <div class="inner-column">
                         <div class="title">
-                            <div class="icon"><img src="images/icons/icon-devider-gray.png" alt=""></div>
+                            <div class="icon"><img src="{{ asset('davilla/images/icons/icon-devider-gray.png') }}" alt=""></div>
                             <h4>Opening Hours</h4>
                         </div>
 
@@ -26,7 +26,7 @@
                 <div class="column col-xl-3 col-lg-6 col-md-6 col-sm-12 order-3">
                     <div class="inner-column">
                         <div class="title">
-                            <div class="icon"><img src="images/icons/icon-devider-gray.png" alt=""></div>
+                            <div class="icon"><img src="{{ asset('davilla/images/icons/icon-devider-gray.png') }}" alt=""></div>
                             <h4>Our Contacts</h4>
                         </div>
 
@@ -42,7 +42,7 @@
                 <div class="column col-xl-6 col-lg-12 col-md-12 col-sm-12">
                     <div class="inner-column">
                         <div class="title">
-                            <div class="icon"><img src="images/icons/icon-devider-gray.png" alt=""></div>
+                            <div class="icon"><img src="{{ asset('davilla/images/icons/icon-devider-gray.png') }}" alt=""></div>
                             <h4>Send Message</h4>
                         </div>
                         <div class="contact-form">
