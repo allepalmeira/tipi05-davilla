@@ -130,3 +130,22 @@ VALUES
 (12, 'Kit Cafe Saudavel', 5, 'Kit com bebida e doces especiais para uma experiência acolhedora.', 'Grande', 'UN', 59.90, 'produto/kit-cafe-saudavel.png', 'ATIVO', 'NAO', 12);
 
 COMMIT;
+
+
+-- Adiciona o campo slug depois do nome do produto
+ALTER TABLE tbl_produtos 
+ADD COLUMN slug_produto VARCHAR(150) NULL AFTER nome_produto;
+
+
+UPDATE tbl_produtos SET slug_produto = 'bolo-banana-fit' WHERE id_produto = 1;
+UPDATE tbl_produtos SET slug_produto = 'bolo-cacau-fit' WHERE id_produto = 2;
+UPDATE tbl_produtos SET slug_produto = 'mini-bolo-cenoura' WHERE id_produto = 3;
+UPDATE tbl_produtos SET slug_produto = 'brownie-fit' WHERE id_produto = 4;
+UPDATE tbl_produtos SET slug_produto = 'brigadeiro-fit' WHERE id_produto = 5;
+UPDATE tbl_produtos SET slug_produto = 'caixa-4-doces-fit' WHERE id_produto = 6;
+UPDATE tbl_produtos SET slug_produto = 'torta-limao-fit' WHERE id_produto = 7;
+UPDATE tbl_produtos SET slug_produto = 'cheesecake-fit' WHERE id_produto = 8;
+UPDATE tbl_produtos SET slug_produto = 'cafe-expresso' WHERE id_produto = 9;
+UPDATE tbl_produtos SET slug_produto = 'cappuccino-cremoso' WHERE id_produto = 10;
+UPDATE tbl_produtos SET slug_produto = 'kit-presente-fit' WHERE id_produto = 11;
+UPDATE tbl_produtos SET slug_produto = 'kit-cafe-saudavel' WHERE id_produto = 12;
