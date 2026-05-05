@@ -22,7 +22,22 @@ class CardapioController extends Controller
         ->orderBy('ordem_produto')
         ->get();
 
+       //dd($listaProduto);
+
         return view('site.cardapio.cardapio', compact('filtroCategoria', 'listaProduto'));
+
+    }
+
+    public function showProduto($slug){
+
+        $produto = Produto::with('CategoriaProduto')
+        ->where('status_produto', 'ATIVO')
+        ->where('slug_produto', $slug)
+        ->firstOrFail();
+
+        //dd($produto);
+
+        return view('site.cardapio.produto', compact('produto'));
 
     }
 
