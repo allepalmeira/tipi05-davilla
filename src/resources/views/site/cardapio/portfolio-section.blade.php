@@ -32,7 +32,7 @@
 
                     @foreach ($listaProduto as $linha)
                     <!-- Portfolio Block Four -->
-                    <div class="portfolio-block-four all categoria-{{ $linha->id_categoria }} col-lg-4 col-md-6 col-sm-12">
+                    <div class="portfolio-block-four all mix categoria-{{ $linha->id_categoria }} col-lg-4 col-md-6 col-sm-12">
                         <div class="inner-box">
                             <div class="image-box">
                                 <figure class="image">

@@ -26,3 +26,9 @@
 .theme-btn.large {
     width: 350px;
 }
+
+
+.shopping-cart .cart-footer .theme-btn {
+    float: right;
+    margin-right: 26%;
+}
