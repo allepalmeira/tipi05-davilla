@@ -25,7 +25,13 @@ class CardapioController extends Controller
 
         //dd($listaProduto);
 
-        return view('site.cardapio.cardapio', compact('filtroCategoria', 'listaProduto'));
+        $categoriaAtiva = 'all';
+
+        return view('site.cardapio.cardapio', compact(
+            'filtroCategoria',
+            'listaProduto',
+            'categoriaAtiva'
+        ));
     }
 
     public function showProduto($slug)
@@ -49,5 +55,25 @@ class CardapioController extends Controller
         //dd($listaCategoria);
 
         return view('site.produto.produto', compact('produto', 'produtosRelacionados', 'listaCategoria'));
+    }
+
+    public function show($id)
+    {
+        $filtroCategoria = Categoria::where('status_categoria', 'ATIVO')
+            ->orderBy('ordem_categoria')
+            ->get();
+
+        $listaProduto = Produto::with('CategoriaProduto')
+            ->where('status_produto', 'ATIVO')
+            ->orderBy('ordem_produto')
+            ->get();
+
+        $categoriaAtiva = '.categoria-' . $id;
+
+        return view('site.cardapio.cardapio', compact(
+            'filtroCategoria',
+            'listaProduto',
+            'categoriaAtiva'
+        ));
     }
 }

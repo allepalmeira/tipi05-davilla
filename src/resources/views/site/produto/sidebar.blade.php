@@ -30,7 +30,7 @@
                                                 <span class="fa fa-star"></span>
                                                 <span class="fa fa-star"></span>
                                             </div>
-                                            <a class="reviews" href="#">(2 Customer Reviews)</a>
+                                            <a class="reviews" href="#">(Avaliações de clientes)</a>
                                             <div class="item-price">{{ number_format($produto->valor_produto, 2,',','.') }}</div>
                                             <div class="text">{{ $produto->descricao_produto }}</div>
                                         </div>
@@ -63,7 +63,7 @@
 
                                         <!--Tab-->
                                         <div class="tab" id="prod-details">
-                                            <h2 class="title">Descripton</h2>
+                                            <h2 class="title">Descrição</h2>
                                             <div class="content">
                                                 <p>{{ $produto->descricao_produto }}</p>
                                             </div>

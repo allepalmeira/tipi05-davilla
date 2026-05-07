@@ -8,14 +8,16 @@
                 <!-- INICIO Filter-->
                 <div class="filters clearfix">
                     <ul class="filter-tabs filter-btns clearfix">
-                        <li class="filter active" data-role="button" data-filter="all">Todos
+                        <li class="filter {{ $categoriaAtiva == 'all' ? 'active' : '' }}" data-role="button" data-filter="all">Todos
                             <div class="filter_shape"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 850.4 217">
                                     <path d="M820.3,96.5c-33.3-20.8-83.5-4.6-118,7.6c-79.5,28.2-150.5,57.8-236.9,44.3C317.8,125.3,122.3-11.8,0,132 c26.4,33.4,64.5-8.1,92.5-18.4c37.9-14,78-14.8,117-5c85.2,21.6,154.1,81.5,242,99.4c43,8.8,93.1,13.5,135.9,1.4 c40.6-11.5,70-41.1,102.9-65.9c22.9-17.3,44-36.9,71.6-23.7c14.9,7.1,20.7,28.6,34.6,37.8c14.7,9.7,34.7,10.1,51,16 C852.6,138,854.8,118.1,820.3,96.5z M494.7,81.7c34.5,4.3,141.9,1.9,134.9-60.3C626.8-3.2,594.7-4.5,577.9,7 c-20.8,14.4-14.3,27.9-44.8,29c-71.9,2.6-145.4-21.3-218.1-21.3C310.4,53.5,463.4,77.9,494.7,81.7z"></path>
                                 </svg></div>
                         </li>
 
                         @foreach ($filtroCategoria as $linha)
-                        <li class="filter" data-role="button" data-filter=".categoria-{{ $linha->id_categoria }}">
+                        <li class="filter {{ $categoriaAtiva == '.categoria-' . $linha->id_categoria ? 'active' : '' }}"
+                            data-role="button" data-filter=".categoria-{{ $linha->id_categoria }}">
+                            
                             {{ $linha->nome_categoria }}
                             <div class="filter_shape"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 850.4 217">
                                     <path d="M820.3,96.5c-33.3-20.8-83.5-4.6-118,7.6c-79.5,28.2-150.5,57.8-236.9,44.3C317.8,125.3,122.3-11.8,0,132 c26.4,33.4,64.5-8.1,92.5-18.4c37.9-14,78-14.8,117-5c85.2,21.6,154.1,81.5,242,99.4c43,8.8,93.1,13.5,135.9,1.4 c40.6-11.5,70-41.1,102.9-65.9c22.9-17.3,44-36.9,71.6-23.7c14.9,7.1,20.7,28.6,34.6,37.8c14.7,9.7,34.7,10.1,51,16 C852.6,138,854.8,118.1,820.3,96.5z M494.7,81.7c34.5,4.3,141.9,1.9,134.9-60.3C626.8-3.2,594.7-4.5,577.9,7 c-20.8,14.4-14.3,27.9-44.8,29c-71.9,2.6-145.4-21.3-218.1-21.3C310.4,53.5,463.4,77.9,494.7,81.7z"></path>
