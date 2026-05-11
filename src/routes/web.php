@@ -29,6 +29,8 @@ Route::get('/cardapio/produto/{slug}', [CardapioController::class, 'showProduto'
 Route::get('/regiao/area/{id}', [RegiaoController::class, 'show'])->name('regiao.area');
 
 
+Route::get('/home/produto/{slug}', [HomeController::class, 'linkProduto'])->name('banner');
+
 
 
 

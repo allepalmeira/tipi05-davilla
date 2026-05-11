@@ -69,6 +69,7 @@ class CardapioController extends Controller
             ->get();
 
         $categoriaAtiva = '.categoria-' . $id;
+        //.categoria-3
 
         return view('site.cardapio.cardapio', compact(
             'filtroCategoria',
