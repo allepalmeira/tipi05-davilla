@@ -1,0 +1,1 @@
+<script src="{{ asset('dash/js/adminlte.js') }}"></script>
