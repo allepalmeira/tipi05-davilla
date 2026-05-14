@@ -8,8 +8,8 @@
             {{--
             <img
                 src="{{ asset('dash/assets/img/AdminLTELogo.png') }}"
-                alt="DaVilla Logo"
-                class="brand-image opacity-75 shadow">
+            alt="DaVilla Logo"
+            class="brand-image opacity-75 shadow">
             --}}
 
             <span class="brand-text fw-light">DaVilla Admin</span>
@@ -52,11 +52,13 @@
                     <ul class="nav nav-treeview">
 
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.categoria.index') }}" class="nav-link">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Categorias</p>
                             </a>
                         </li>
+
+
 
                         <li class="nav-item">
                             <a href="#" class="nav-link">
