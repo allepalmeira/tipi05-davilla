@@ -22,6 +22,9 @@
 
 <!--begin::Accessibility Features-->
 <meta name="supported-color-schemes" content="light dark" />
+
+
+<link href="path/to/lightbox.css" rel="stylesheet" />
 <link rel="preload" href="{{ asset('dash/css/adminlte.css') }}" as="style" />
 <!--end::Accessibility Features-->
 
