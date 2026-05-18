@@ -13,6 +13,7 @@
         @include('admin.partials.app-sidebar')
 
         <main class="app-main">
+            @include('admin.partials.content-header')
             @yield('content')
         </main>
 
