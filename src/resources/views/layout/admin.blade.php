@@ -3,6 +3,8 @@
 
 <head>
     @include('admin.partials.head')
+
+     @vite(['resources/js/app.js'])
 </head>
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">

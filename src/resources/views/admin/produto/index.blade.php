@@ -59,8 +59,13 @@
                             @forelse($produtos as $linha)
                             <tr class="align-middle">
                                 <td>
-                                    <a href="{{ asset('davilla/images/'. $linha->foto_produto) }}"data-lightbox="galeria">
-                                        <img src="{{ asset('davilla/images/'. $linha->foto_produto) }}" class="img-thumbnail" alt=" {{ $linha->nome_produto }}" data-lightbox="roadtrip">
+                                    <a href="{{ asset('davilla/images/' . $linha->foto_produto) }}"
+                                        data-lightbox="galeria"
+                                        data-title="{{ $linha->nome_produto }}">
+
+                                        <img src="{{ asset('davilla/images/' . $linha->foto_produto) }}"
+                                            class="img-thumbnail"
+                                            alt="{{ $linha->nome_produto }}">
                                     </a>
                                 </td>
                                 <td>
