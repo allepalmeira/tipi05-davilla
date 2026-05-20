@@ -43,5 +43,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashController::class, 'index'])->name('dash');
 
     Route::get('/categorias', [CategoriaController::class, 'index'])->name('categoria.index');
+    Route::post('/categorias', [CategoriaController::class, 'store'])->name('categoria.store');
+    
+    Route::patch('/categorias/{id}/desativar', [CategoriaController::class, 'desativar'])->name('categoria.desativar');
+
+    Route::patch('/categorias/{id}/ativar', [CategoriaController::class, 'ativar'])->name('categoria.ativar');
+
+
+
+
+
     Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
 });
