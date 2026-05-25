@@ -151,6 +151,7 @@
 @endsection
 
 @push('plugins')
+
 <!-- sortablejs -->
 <script
     src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
@@ -168,7 +169,7 @@
         cardHeader.style.cursor = 'move';
     });
 </script>
-
+0
 <!-- apexcharts -->
 <script
     src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
