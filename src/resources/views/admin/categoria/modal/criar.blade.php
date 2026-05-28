@@ -31,13 +31,6 @@
                         <div class="mb-3">
                             <div class="row">
                                 <div class="col-6">
-                                    <label for="ordem_categoria" class="form-label">Ordem</label>
-                                    <input type="number" class="form-control" id="ordem_categoria" name="ordem_categoria" aria-describedby="alerta-ordem_categoria" Required>
-                                    <div id="alerta-ordem_categoria" class="form-text">
-                                        Informe a ordem da categoria
-                                    </div>
-                                </div>
-                                <div class="col-6">
                                     <label for="status_categoria" class="form-label">Status</label>
                                     <select class="form-select" aria-label="Selecione um status" aria-describedby="alerta-ordem_categoria" name="status_categoria" Required>
                                         <option selected>Selecione uma opção</option>

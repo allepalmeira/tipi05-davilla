@@ -13,7 +13,7 @@ class ProdutoController extends Controller
 {
     public function index()
     {
-        $produtos = Produto::orderBy('ordem_produto')->get();
+        $produtos = Produto::orderBy('nome_produto')->get();
         
         $categorias = Categoria::where('status_categoria', 'ATIVO')
             ->orderBy('nome_categoria')
@@ -35,7 +35,6 @@ class ProdutoController extends Controller
             'foto_produto'        => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status_produto'      => 'required|in:ATIVO,INATIVO',
             'destaque_produto'    => 'required|in:SIM,NAO',
-            'ordem_produto'       => 'required|integer',
         ]);
 
         $fotoProduto = $request->file('foto_produto');
@@ -55,7 +54,6 @@ class ProdutoController extends Controller
             'foto_produto'        => $caminhoFoto,
             'status_produto'      => $request->status_produto,
             'destaque_produto'    => $request->destaque_produto,
-            'ordem_produto'       => $request->ordem_produto,
         ]);
 
         return redirect()

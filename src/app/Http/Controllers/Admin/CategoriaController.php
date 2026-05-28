@@ -12,8 +12,8 @@ class CategoriaController extends Controller
     public function index()
     {
 
-        $categorias = Categoria::orderBy('ordem_categoria')
-            // ->where('status_categoria', 'ATIVO')
+        $categorias = Categoria::orderBy('nome_categoria')
+            //->where('status_categoria', 'ATIVO')
             ->get();
 
         //dd($categorias);
@@ -29,14 +29,12 @@ class CategoriaController extends Controller
         $request->validate([
             'nome_categoria'        => 'required|string|max:30',
             'descricao_categoria'   => 'required|string',
-            'ordem_categoria'       => 'required|integer',
             'status_categoria'      => 'required|in:ATIVO,INATIVO',
         ]);
 
         Categoria::create([
             'nome_categoria'        => $request->nome_categoria,
             'descricao_categoria'   => $request->descricao_categoria,
-            'ordem_categoria'       => $request->ordem_categoria,
             'status_categoria'      => $request->status_categoria,
         ]);
 
@@ -49,7 +47,7 @@ class CategoriaController extends Controller
     public function desativar($id)
     {
         $categoria = Categoria::findOrFail($id);
-        // $categoria->status_categoria = 'INATIVO';
+        $categoria->status_categoria = 'INATIVO';
         $categoria->update([
             'status_categoria' => 'INATIVO',
         ]);
@@ -64,6 +62,9 @@ class CategoriaController extends Controller
     {
         $categoria = Categoria::findOrFail($id);
         $categoria->status_categoria = 'ATIVO';
+        $categoria->update([
+            'status_categoria' => 'ATIVO',
+        ]);
 
         return redirect()
             ->route('admin.categoria.index')
@@ -77,7 +78,6 @@ class CategoriaController extends Controller
         $request->validate([
             'nome_categoria'        => 'required|string|max:30',
             'descricao_categoria'   => 'required|string',
-            'ordem_categoria'       => 'required|integer',
             'status_categoria'      => 'required|in:ATIVO,INATIVO',
         ]);
 
@@ -86,7 +86,6 @@ class CategoriaController extends Controller
         $categoria->update([
             'nome_categoria'        => $request->nome_categoria,
             'descricao_categoria'   => $request->descricao_categoria,
-            'ordem_categoria'       => $request->ordem_categoria,
             'status_categoria'      => $request->status_categoria,
         ]);
 

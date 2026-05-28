@@ -25,7 +25,6 @@ class Produto extends Model
         'foto_produto',
         'status_produto',
         'destaque_produto',
-        'ordem_produto',
     ];
     
 

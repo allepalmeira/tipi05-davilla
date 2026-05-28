@@ -12,32 +12,49 @@
 
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="nome_produto" class="form-label">Nome</label>
-                                <input type="text" class="form-control" id="nome_produto" name="nome_produto" aria-describedby="alerta-nome_produto" required>
-                                <div id="alerta-nome_produto" class="form-text">
-                                    Informe o nome do produto
-                                </div>
-                            </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="id_categoria" class="form-label">Categoria</label>
-                                <select class="form-select" id="id_categoria" name="id_categoria" aria-describedby="alerta-id_categoria" required>
-                                    <option value="" selected>Selecione uma categoria</option>
-                                    @foreach ($categorias as $categoria)
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="foto_produto" class="form-label">Foto</label>
+                                    <label for="foto_produto" class="d-block cursor-pointer">
+                                        <img
+                                            src="{{ asset('davilla/images/sem-foto.png') }}"
+                                            class="img-thumbnail w-100"
+                                            id="preview_foto_produto"
+                                            alt="Selecione a foto do produto"
+                                            style="height: 230px; object-fit: cover; cursor: pointer;">
+                                    </label>
+                                    <input type="file" class="form-control d-none" id="foto_produto" name="foto_produto" aria-describedby="alerta-foto_produto" accept="image/png,image/jpeg,image/webp" required>
+                                    <div id="alerta-foto_produto" class="form-text">
+                                        Clique na imagem para selecionar a foto do produto
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label for="nome_produto" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" id="nome_produto" name="nome_produto" aria-describedby="alerta-nome_produto" required>
+                                    <div id="alerta-nome_produto" class="form-text">
+                                        Informe o nome do produto
+                                    </div>
+
+                                    <label for="id_categoria" class="form-label">Categoria</label>
+                                    <select class="form-select" id="id_categoria" name="id_categoria" aria-describedby="alerta-id_categoria" required>
+                                        <option value="" selected>Selecione uma categoria</option>
+                                        @foreach ($categorias as $categoria)
                                         <option value="{{ $categoria->id_categoria }}">{{ $categoria->nome_categoria }}</option>
-                                    @endforeach
-                                </select>
-                                <div id="alerta-id_categoria" class="form-text">
-                                    Informe a categoria do produto
-                                </div>
-                            </div>
+                                        @endforeach
+                                    </select>
+                                    <div id="alerta-id_categoria" class="form-text">
+                                        Informe a categoria do produto
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="foto_produto" class="form-label">Foto</label>
-                                <input type="file" class="form-control" id="foto_produto" name="foto_produto" aria-describedby="alerta-foto_produto" accept="image/png,image/jpeg,image/webp" required>
-                                <div id="alerta-foto_produto" class="form-text">
-                                    Selecione a foto do produto
+                                    <label for="valor_produto" class="form-label">Valor</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="valor_produto" name="valor_produto" aria-describedby="alerta-valor_produto" required>
+                                    <div id="alerta-valor_produto" class="form-text">
+                                        Informe o valor
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -51,7 +68,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="tamanho_produto" class="form-label">Tamanho</label>
                                 <input type="text" class="form-control" id="tamanho_produto" name="tamanho_produto" aria-describedby="alerta-tamanho_produto" required>
                                 <div id="alerta-tamanho_produto" class="form-text">
@@ -59,7 +76,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="unid_med_produto" class="form-label">Unidade de medida</label>
                                 <input type="text" class="form-control" id="unid_med_produto" name="unid_med_produto" aria-describedby="alerta-unid_med_produto" required>
                                 <div id="alerta-unid_med_produto" class="form-text">
@@ -67,25 +84,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label for="valor_produto" class="form-label">Valor</label>
-                                <input type="number" step="0.01" min="0" class="form-control" id="valor_produto" name="valor_produto" aria-describedby="alerta-valor_produto" required>
-                                <div id="alerta-valor_produto" class="form-text">
-                                    Informe o valor
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="ordem_produto" class="form-label">Ordem</label>
-                                <input type="number" class="form-control" id="ordem_produto" name="ordem_produto" aria-describedby="alerta-ordem_produto" required>
-                                <div id="alerta-ordem_produto" class="form-text">
-                                    Informe a ordem do produto
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="status_produto" class="form-label">Status</label>
                                 <select class="form-select" id="status_produto" name="status_produto" aria-describedby="alerta-status_produto" required>
                                     <option value="" selected>Selecione uma opcao</option>
@@ -97,7 +96,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="destaque_produto" class="form-label">Destaque</label>
                                 <select class="form-select" id="destaque_produto" name="destaque_produto" aria-describedby="alerta-destaque_produto" required>
                                     <option value="" selected>Selecione uma opcao</option>
@@ -108,6 +107,7 @@
                                     Informe se o produto e destaque
                                 </div>
                             </div>
+
                         </div>
 
                         <div class="modal-footer mb-3 btn-modal">
@@ -120,3 +120,30 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalNovoProduto = document.getElementById('modalNovoProduto');
+        const inputFotoProduto = document.getElementById('foto_produto');
+        const previewFotoProduto = document.getElementById('preview_foto_produto');
+        const fotoPadraoProduto = previewFotoProduto.src;
+
+        inputFotoProduto.addEventListener('change', function() {
+            const arquivo = this.files[0];
+
+            if (!arquivo) {
+                previewFotoProduto.src = fotoPadraoProduto;
+                return;
+            }
+
+            previewFotoProduto.src = URL.createObjectURL(arquivo);
+        });
+
+        modalNovoProduto.addEventListener('hidden.bs.modal', function() {
+            inputFotoProduto.form.reset();
+            previewFotoProduto.src = fotoPadraoProduto;
+        });
+    });
+</script>
+@endpush

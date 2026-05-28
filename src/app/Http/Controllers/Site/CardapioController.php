@@ -13,7 +13,7 @@ class CardapioController extends Controller
     {
         // Buscar CATEGORIA para montar a lista de filtro
         $filtroCategoria = Categoria::where('status_categoria', 'ATIVO')
-            ->orderBy('ordem_categoria')
+            ->orderBy('nome_categoria')
             ->get();
 
 
@@ -23,7 +23,7 @@ class CardapioController extends Controller
             ->whereHas('CategoriaProduto', function ($query) {
                 $query->where('status_categoria', 'ATIVO');
             })
-            ->orderBy('ordem_produto')
+            ->orderBy('nome_produto')
             ->get();
 
         //dd($listaProduto);
@@ -54,11 +54,11 @@ class CardapioController extends Controller
             })
             ->where('id_categoria', $produto->id_categoria)
             ->where('id_produto', '!=', $produto->id_produto)
-            ->orderBy('ordem_produto')
+            ->orderBy('nome_produto')
             ->get();
 
         $listaCategoria = Categoria::where('status_categoria', 'ATIVO')
-            ->orderBy('ordem_categoria')
+            ->orderBy('nome_categoria')
             ->get();
 
         //dd($listaCategoria);
@@ -69,7 +69,7 @@ class CardapioController extends Controller
     public function show($id)
     {
         $filtroCategoria = Categoria::where('status_categoria', 'ATIVO')
-            ->orderBy('ordem_categoria')
+            ->orderBy('nome_categoria')
             ->get();
 
         $listaProduto = Produto::with('CategoriaProduto')
@@ -77,7 +77,7 @@ class CardapioController extends Controller
             ->whereHas('CategoriaProduto', function ($query) {
                 $query->where('status_categoria', 'ATIVO');
             })
-            ->orderBy('ordem_produto')
+            ->orderBy('nome_produto')
             ->get();
 
         $categoriaAtiva = '.categoria-' . $id;
