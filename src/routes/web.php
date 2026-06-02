@@ -16,7 +16,9 @@ use App\Http\Controllers\Admin\DashController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\ProdutoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AuthController;
 
+use PharIo\Manifest\AuthorCollection;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/sobre', [SobreController::class, 'sobre'])->name('sobre');
@@ -38,25 +40,34 @@ Route::get('/regiao/area/{id}', [RegiaoController::class, 'show'])->name('regiao
 Route::get('/home/produto/{slug}', [HomeController::class, 'linkProduto'])->name('banner');
 
 
+// INICIO DO PREFIX ADMIN
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/', [DashController::class, 'index'])->name('dash');
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'autenticar'])->name('login.autenticar');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/categorias', [CategoriaController::class, 'index'])->name('categoria.index');
-    Route::post('/categorias', [CategoriaController::class, 'store'])->name('categoria.store');
+    /*####################################
+    #########   ROTAS PROTEGIDA   #######
+    ####################################*/
 
-    // Desativar
-    Route::patch('/categorias/{id}/desativar', [CategoriaController::class, 'desativar'])->name('categoria.desativar');
-    // Ativar
-    Route::patch('/categorias/{id}/ativar', [CategoriaController::class, 'ativar'])->name('categoria.ativar');
+    Route::middleware('auth:admin')->group(function () {
 
-    // Editar
-    Route::put('/categorias/{id}', [CategoriaController::class, 'update'])->name('categoria.update');
+        Route::get('/', [DashController::class, 'index'])->name('dash');
+        Route::get('/categorias', [CategoriaController::class, 'index'])->name('categoria.index');
+        Route::post('/categorias', [CategoriaController::class, 'store'])->name('categoria.store');
+
+        // Desativar
+        Route::patch('/categorias/{id}/desativar', [CategoriaController::class, 'desativar'])->name('categoria.desativar');
+        // Ativar
+        Route::patch('/categorias/{id}/ativar', [CategoriaController::class, 'ativar'])->name('categoria.ativar');
+
+        // Editar
+        Route::put('/categorias/{id}', [CategoriaController::class, 'update'])->name('categoria.update');
 
 
+        Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
+        Route::post('/produto', [ProdutoController::class, 'store'])->name('produto.store');
+    });
 
-
-
-    Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
-    Route::post('/produto', [ProdutoController::class, 'store'])->name('produto.store');
-});
+}); // FIM DO PREFIX ADMIN
