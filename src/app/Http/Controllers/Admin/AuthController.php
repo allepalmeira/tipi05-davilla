@@ -43,5 +43,13 @@ class AuthController extends Controller
         return back()->withInput()->with('error', 'E-mail ou senha invalido');
     }
 
-    public function logout() {}
+    public function logout(Request $request) {
+        Auth::guard('admin')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login');
+
+    }
 }
