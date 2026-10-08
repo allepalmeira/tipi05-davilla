@@ -24,6 +24,7 @@ class Cliente extends Authenticatable
         'telefone_cliente',
         'foto_cliente',
         'status_cliente',
+        'termo_aceito_em_cliente',
     ];
 
     protected $hidden = [
@@ -32,6 +33,7 @@ class Cliente extends Authenticatable
 
     protected $casts = [
         'data_nasc_cliente' => 'date',
+        'termo_aceito_em_cliente' => 'datetime',
     ];
 
     public function getAuthPassword()
