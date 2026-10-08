@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->integer('id_cliente');
             $table->integer('id_produto');
-            $table->integer('criado_em_favorito')->useCurrent();
+            $table->dateTime('criado_em_favorito')->useCurrent();
             $table->string('status_favorito', 20)->default('ATIVO');
 
             /* id_cliente ---- 1 ---- id_favorito ---- N ---- id_produto */
