@@ -1,10 +1,10 @@
 @extends('layout.admin')
 
-@section('title', 'Produto | Confeitaria Dashboard')
+@section('title', 'Banner | Confeitaria Dashboard')
 
-@section('pg-titulo', 'Produto')
+@section('pg-titulo', 'Banner')
 
-@section('link-topo', 'Produto')
+@section('link-topo', 'Banner')
 
 @section('content')
 
@@ -28,75 +28,75 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Gerenciamento de Produtos</h3>
+                    <h3 class="card-title">Gerenciamento de Banners</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#modalNovoProduto">
+                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#modalNovoBanner">
                             <i class="bi bi-plus-circle"></i>
-                            Novo Produto
+                            Novo Banner
                         </button>
                     </div>
                 </div>
-                <!-- /.card-header 
-                 
+                <!-- /.card-header
+
                 Columns:
-                    id_produto 
-                    nome_produto  
-                    slug_produto 
-                    id_categoria 
-                    descricao_produto 
-                    tamanho_produto
-                    unid_med_produto
-                    valor_produto 
-                    foto_produto  
-                    status_produto  
-                    destaque_produto 
-                    ordem_produto 
-                
+                    id_banner
+                    nome_banner
+                    titulo_banner
+                    subtitulo_banner
+                    descricao_banner
+                    texto_botao_banner
+                    link_botao_banner
+                    ordem_banner
+                    foto_banner
+                    status_banner
+
                 -->
                 <div class="card-body p-0">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th style="width: 150px;">Foto</th>
-                                <th>Nome e Descrição</th>
-                                <th>Tamanho</th>
-                                <th>Unid. Medida</th>
-                                <th>Valor</th>
-                                <th>Destaque</th>
+                                <th style="width: 200px;">Foto</th>
+                                <th>Título e Subtítulo</th>
+                                <th>Botão</th>
+                                <th>Ordem</th>
                                 <th>Status</th>
                                 <th style="width: 200px">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($produtos as $linha)
+                            @forelse($banners as $linha)
                             <tr class="align-middle">
                                 <td>
-                                    <a href="{{ asset('davilla/images/' . $linha->foto_produto) }}"
+                                    <a href="{{ asset('davilla/images/' . $linha->foto_banner) }}"
                                         data-lightbox="galeria"
-                                        data-title="{{ $linha->nome_produto }}">
+                                        data-title="{{ $linha->titulo_banner }}">
 
-                                        <img src="{{ asset('davilla/images/' . $linha->foto_produto) }}"
+                                        <img src="{{ asset('davilla/images/' . $linha->foto_banner) }}"
                                             class="img-thumbnail"
-                                            alt="{{ $linha->nome_produto }}">
+                                            alt="{{ $linha->titulo_banner }}">
                                     </a>
                                 </td>
                                 <td>
                                     <div class="tblProduto">
                                         <div class="tituloProduto">
-                                            {{ $linha->nome_produto }}
+                                            {{ $linha->titulo_banner }}
                                         </div>
                                         <div class="descProduto">
-                                            {{ $linha->descricao_produto }}
+                                            {{ $linha->subtitulo_banner }}
                                         </div>
                                     </div>
-
                                 </td>
-                                <td>{{ $linha->tamanho_produto }}</td>
-                                <td>{{ $linha->unid_med_produto }}</td>
-                                <td>{{ $linha->valor_produto }}</td>
-                                <td>{{ $linha->destaque_produto }}</td>
                                 <td>
-                                    @if($linha->status_produto === 'ATIVO')
+                                    @if($linha->texto_botao_banner)
+                                    {{ $linha->texto_botao_banner }}
+                                    <br><small class="text-secondary">{{ $linha->link_botao_banner }}</small>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>{{ $linha->ordem_banner }}</td>
+                                <td>
+                                    @if($linha->status_banner === 'ATIVO')
                                     <span class="badge text-bg-success">Ativo</span>
                                     @else
                                     <span class="badge text-bg-danger">Inativo</span>
@@ -107,13 +107,13 @@
                                     <button type="button"
                                         class="btn btn-warning"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#modalEditarProduto{{ $linha->id_produto }}">
+                                        data-bs-target="#modalEditarBanner{{ $linha->id_banner }}">
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
                                     <!-- DESATIVAR ou ATIVAR -->
-                                    @if($linha->status_produto === 'ATIVO')
-                                    <form action="{{ route('admin.produto.desativar', $linha->id_produto) }}" method="post" class="d-inline">
+                                    @if($linha->status_banner === 'ATIVO')
+                                    <form action="{{ route('admin.banner.desativar', $linha->id_banner) }}" method="post" class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-danger">
@@ -121,7 +121,7 @@
                                         </button>
                                     </form>
                                     @else
-                                    <form action="{{ route('admin.produto.ativar', $linha->id_produto) }}" method="post" class="d-inline">
+                                    <form action="{{ route('admin.banner.ativar', $linha->id_banner) }}" method="post" class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success">
@@ -133,10 +133,10 @@
                                 </td>
                             </tr>
 
-                            @include('admin.produto.modal.editar', ['produto' => $linha])
+                            @include('admin.banner.modal.editar', ['banner' => $linha])
                             @empty
                             <tr>
-                                <td>Nenhuma produto cadastrada</td>
+                                <td>Nenhum banner cadastrado</td>
                             </tr>
                             @endforelse
 
@@ -152,6 +152,6 @@
 </div>
 
 
-@include('admin.produto.modal.criar')
+@include('admin.banner.modal.criar')
 
 @endsection

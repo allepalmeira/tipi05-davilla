@@ -15,6 +15,7 @@ use App\Http\Controllers\Site\SobreController;
 use App\Http\Controllers\Admin\DashController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\ProdutoController;
+use App\Http\Controllers\Admin\BannerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 
@@ -71,6 +72,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
         Route::post('/produto', [ProdutoController::class, 'store'])->name('produto.store');
+
+        // Desativar
+        Route::patch('/produto/{id}/desativar', [ProdutoController::class, 'desativar'])->name('produto.desativar');
+        // Ativar
+        Route::patch('/produto/{id}/ativar', [ProdutoController::class, 'ativar'])->name('produto.ativar');
+
+        // Editar
+        Route::put('/produto/{id}', [ProdutoController::class, 'update'])->name('produto.update');
+
+
+        Route::get('/banner', [BannerController::class, 'index'])->name('banner.index');
+        Route::post('/banner', [BannerController::class, 'store'])->name('banner.store');
+
+        // Desativar
+        Route::patch('/banner/{id}/desativar', [BannerController::class, 'desativar'])->name('banner.desativar');
+        // Ativar
+        Route::patch('/banner/{id}/ativar', [BannerController::class, 'ativar'])->name('banner.ativar');
+
+        // Editar
+        Route::put('/banner/{id}', [BannerController::class, 'update'])->name('banner.update');
     });
 
 }); // FIM DO PREFIX ADMIN

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-
 class Usuario extends Authenticatable
 {
     protected $table = 'tbl_usuarios';
+
     protected $primaryKey = 'id_usuario';
+
     public $timestamps = true;
 
     const CREATED_AT = 'criado_em_usuario';
@@ -23,12 +24,17 @@ class Usuario extends Authenticatable
         'status_usuario',
     ];
 
-    protected $hidden = ['senha_usuario'];
+    protected $hidden = [
+        'senha_usuario',
+    ];
+
+    public function getAuthPasswordName()
+    {
+        return 'senha_usuario';
+    }
 
     public function getAuthPassword()
     {
         return $this->senha_usuario;
     }
-
-    
 }
