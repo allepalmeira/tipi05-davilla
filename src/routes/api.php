@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\V1\ClienteController;
 Route::prefix('v1')->group(function () {
 
     // LOGIN - rota pública
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
     // CADASTRO - rota pública (limite de 10 cadastros por minuto por IP)
     Route::post('/auth/cadastro', [AuthController::class, 'cadastro'])->middleware('throttle:10,1');

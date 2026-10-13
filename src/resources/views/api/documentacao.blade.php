@@ -934,9 +934,16 @@ if (json.success) {
             </table>
 
             <p>
-                Em erros de validação (<span class="status s4">422</span>), o objeto <code>errors</code>
-                traz a lista de mensagens de cada campo inválido.
+                Todo erro retorna <code>"success": false</code> e uma <code>message</code> em português,
+                pronta para ser exibida ao usuário. Em erros de validação (<span class="status s4">422</span>),
+                o objeto <code>errors</code> traz também a lista de mensagens de cada campo inválido.
             </p>
+
+            <div class="callout">
+                No aplicativo, verifique sempre <code>resposta.ok</code> (ou <code>json.success</code>) antes de
+                usar <code>json.data</code>. Em caso de <span class="status s4">401</span> em uma rota protegida,
+                apague o token salvo e leve o usuário para a tela de login.
+            </div>
         </div>
 
         <div class="code">
@@ -959,10 +966,11 @@ if (json.success) {
   "message": "E-mail ou senha inválidos."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "The email field is required. (and 1 more error)",
+  "success": false,
+  "message": "O campo e-mail é obrigatório.",
   "errors": {
-    "email": ["The email field is required."],
-    "senha": ["The senha field is required."]
+    "email": ["O campo e-mail é obrigatório."],
+    "senha": ["O campo senha é obrigatório."]
   }
 }</code></pre></div>
                 </div>
@@ -1111,6 +1119,7 @@ const { data } = await api('/status');</code></pre></div>
                     <tr><td><span class="status s4">401</span></td><td>E-mail ou senha inválidos.</td></tr>
                     <tr><td><span class="status s4">403</span></td><td>Cliente inativo.</td></tr>
                     <tr><td><span class="status s4">422</span></td><td>Campos obrigatórios ausentes ou inválidos.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Mais de 5 tentativas por minuto para o mesmo e-mail.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1183,10 +1192,11 @@ try {
   "message": "Cliente inativo."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "The email field is required. (and 1 more error)",
+  "success": false,
+  "message": "O campo e-mail é obrigatório.",
   "errors": {
-    "email": ["The email field is required."],
-    "senha": ["The senha field is required."]
+    "email": ["O campo e-mail é obrigatório."],
+    "senha": ["O campo senha é obrigatório."]
   }
 }</code></pre></div>
                 </div>
@@ -1347,7 +1357,8 @@ try {
   }
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "Este e-mail já está cadastrado. (and 1 more error)",
+  "success": false,
+  "message": "Este e-mail já está cadastrado.",
   "errors": {
     "email": ["Este e-mail já está cadastrado."],
     "aceite_termo": ["É necessário aceitar o termo de consentimento."]
@@ -1415,7 +1426,8 @@ await AsyncStorage.removeItem('token');</code></pre></div>
   "message": "Logout realizado com sucesso."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "Unauthenticated."
+  "success": false,
+  "message": "Sessão expirada. Faça login novamente."
 }</code></pre></div>
                 </div>
             </div>
@@ -1490,7 +1502,8 @@ const { data: cliente } = await api('/cliente');</code></pre></div>
   }
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "Unauthenticated."
+  "success": false,
+  "message": "Sessão expirada. Faça login novamente."
 }</code></pre></div>
                 </div>
             </div>
@@ -1648,9 +1661,10 @@ try {
   }
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "The email cliente has already been taken.",
+  "success": false,
+  "message": "O valor informado em e-mail já está em uso.",
   "errors": {
-    "email_cliente": ["The email cliente has already been taken."]
+    "email_cliente": ["O valor informado em e-mail já está em uso."]
   }
 }</code></pre></div>
                 </div>
@@ -1757,9 +1771,10 @@ await api('/cliente/senha', {
   "message": "Senha atual incorreta."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "The nova senha field confirmation does not match.",
+  "success": false,
+  "message": "A confirmação do campo nova senha não confere.",
   "errors": {
-    "nova_senha": ["The nova senha field confirmation does not match."]
+    "nova_senha": ["A confirmação do campo nova senha não confere."]
   }
 }</code></pre></div>
                 </div>
@@ -2020,7 +2035,8 @@ const { data } = await api(`/categorias/${id}/produtos`);
   }
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "No query results for model [App\\Models\\Categoria]."
+  "success": false,
+  "message": "Recurso não encontrado."
 }</code></pre></div>
                 </div>
             </div>
@@ -2216,7 +2232,8 @@ const { data: produto } = await api(`/produtos/${slug}`);</code></pre></div>
   }
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
-  "message": "No query results for model [App\\Models\\Produto]."
+  "success": false,
+  "message": "Recurso não encontrado."
 }</code></pre></div>
                 </div>
             </div>
