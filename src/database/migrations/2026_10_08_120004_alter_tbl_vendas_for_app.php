@@ -43,9 +43,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE tbl_vendas DROP CHECK chk_entrega_endereco_venda');
-        DB::statement('ALTER TABLE tbl_vendas DROP CHECK chk_entrega_venda');
-        DB::statement('ALTER TABLE tbl_vendas DROP CHECK chk_forma_pagamento_venda');
+        // DROP CONSTRAINT funciona no MySQL 8 e no MariaDB (DROP CHECK é só MySQL)
+        DB::statement('ALTER TABLE tbl_vendas DROP CONSTRAINT chk_entrega_endereco_venda');
+        DB::statement('ALTER TABLE tbl_vendas DROP CONSTRAINT chk_entrega_venda');
+        DB::statement('ALTER TABLE tbl_vendas DROP CONSTRAINT chk_forma_pagamento_venda');
 
         Schema::table('tbl_vendas', function (Blueprint $table) {
             $table->dropForeign('fk_venda_endereco');
