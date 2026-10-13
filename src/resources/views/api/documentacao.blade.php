@@ -689,8 +689,13 @@
                 <em>cURL</em>, <em>React Native</em> e <em>Postman</em>.
             </p>
             <p>
-                No React Native, centralize as chamadas no helper <code>api()</code> ao lado: ele monta a URL,
-                envia os cabeçalhos e o token automaticamente e lança um erro quando o status não é 2xx.
+                Os exemplos em React Native seguem o padrão do aplicativo: <code>fetch</code> com a URL de
+                <code>@/config/api</code>, token salvo no <code>AsyncStorage</code> e navegação com
+                <code>expo-router</code>.
+            </p>
+            <p>
+                Antes de usar <code>json.data</code>, verifique sempre <code>resposta.ok</code>. Em caso de erro,
+                a API devolve uma <code>message</code> em português, pronta para exibir ao usuário.
             </p>
 
             <div class="callout warn">
@@ -726,38 +731,18 @@
 
         <div class="code">
             <div class="code-sticky">
-                <div class="code-title">src/services/api.js</div>
+                <div class="code-title">config/api.js</div>
                 <div class="block" data-tabs>
                     <div class="block-head">
                         <button class="tab active" data-panel="0">React Native</button>
                         <button class="copy" type="button">Copiar</button>
                     </div>
-                    <div class="panel active"><pre><code data-lang="js">import AsyncStorage from '@react-native-async-storage/async-storage';
+                    <div class="panel active"><pre><code data-lang="js">// Emulador Android: http://10.0.2.2:8081/api/v1
+// Celular físico:   http://IP-DO-COMPUTADOR:8081/api/v1
+export const API = "{{BASE_URL}}";
 
-// Emulador Android: http://10.0.2.2:PORTA/api/v1
-// Celular físico: http://IP-DO-COMPUTADOR:PORTA/api/v1
-export const API_URL = '{{BASE_URL}}';
-
-export async function api(rota, { method = 'GET', body } = {}) {
-  const token = await AsyncStorage.getItem('token');
-
-  const resposta = await fetch(API_URL + rota, {
-    method,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` })
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-
-  const json = await resposta.json();
-
-  // Erros (401, 404, 422...) caem no catch de quem chamou
-  if (!resposta.ok) throw { status: resposta.status, ...json };
-
-  return json;
-}</code></pre></div>
+// Fotos de produtos e banners
+export const IMAGENS = API.replace("/api/v1", "/davilla/images/");</code></pre></div>
                 </div>
 
                 <div class="code-title">Requisição de teste</div>
@@ -769,9 +754,13 @@ export async function api(rota, { method = 'GET', body } = {}) {
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/status \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
 
-const json = await api('/status');
+const resposta = await fetch(`${API}/status`, {
+  headers: { Accept: "application/json" },
+});
+
+const json = await resposta.json();
 console.log(json.data.status); // "online"</code></pre></div>
                 </div>
             </div>
@@ -817,11 +806,24 @@ console.log(json.data.status); // "online"</code></pre></div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/cliente \
   -H "Accept: application/json" \
   -H "Authorization: Bearer 1|aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5z"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { API } from "@/config/api";
 
-// O helper lê o token salvo e envia
-// "Authorization: Bearer {token}" automaticamente
-const { data: cliente } = await api('/cliente');</code></pre></div>
+const token = await AsyncStorage.getItem("token");
+
+const resposta = await fetch(`${API}/cliente`, {
+  headers: {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+// Token expirado ou inválido: volta para o login
+if (resposta.status === 401) {
+  await AsyncStorage.removeItem("token");
+  router.replace("/login");
+}</code></pre></div>
                 </div>
             </div>
         </div>
@@ -997,9 +999,8 @@ if (json.success) {
                         <button class="tab active" data-panel="0">React Native</button>
                         <button class="copy" type="button">Copiar</button>
                     </div>
-                    <div class="panel active"><pre><code data-lang="js">import { Image } from 'react-native';
-
-const IMAGENS = '{{IMAGES_URL}}';
+                    <div class="panel active"><pre><code data-lang="js">import { Image } from "react-native";
+import { IMAGENS } from "@/config/api";
 
 // produto.foto_produto = "produto/bolo-banana-fit.png"
 &lt;Image
@@ -1040,9 +1041,13 @@ const IMAGENS = '{{IMAGES_URL}}';
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/status \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
 
-const { data } = await api('/status');</code></pre></div>
+const resposta = await fetch(`${API}/status`, {
+  headers: { Accept: "application/json" },
+});
+
+const json = await resposta.json();</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -1141,23 +1146,61 @@ const { data } = await api('/status');</code></pre></div>
     "senha": "12345678",
     "device_name": "iphone-maria"
   }'</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { API } from "@/config/api";
 
-try {
-  const { data } = await api('/auth/login', {
-    method: 'POST',
-    body: {
-      email: 'maria@email.com',
-      senha: '12345678',
-      device_name: 'iphone-maria'
+// Nome único por instalação: evita que um aparelho
+// derrube a sessão do outro
+async function nomeDoDispositivo() {
+  let id = await AsyncStorage.getItem("device_id");
+  if (!id) {
+    id = `app-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await AsyncStorage.setItem("device_id", id);
+  }
+  return id;
+}
+
+async function fazerLogin() {
+  if (!email.trim() || !senha) {
+    mostrarMensagem("Informe e-mail e senha.");
+    return;
+  }
+
+  setCarregando(true);
+
+  try {
+    const resposta = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        email: email.trim(),
+        senha: senha,
+        device_name: await nomeDoDispositivo(),
+      }),
+    });
+
+    const json = await resposta.json();
+
+    // 401 senha errada | 403 inativo | 422 campos | 429 tentativas
+    if (!resposta.ok || !json.success) {
+      mostrarMensagem(json.message);
+      return;
     }
-  });
 
-  await AsyncStorage.setItem('token', data.token);
-} catch (erro) {
-  // 401: credenciais inválidas | 403: cliente inativo | 422: validação
-  alert(erro.message);
+    await AsyncStorage.setItem("token", json.data.token);
+    await AsyncStorage.setItem("cliente", JSON.stringify(json.data.cliente));
+
+    router.replace("/home");
+  } catch (erro) {
+    console.log("Erro ao realizar login:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  } finally {
+    setCarregando(false);
+  }
 }</code></pre></div>
                 </div>
 
@@ -1312,27 +1355,54 @@ try {
     "aceite_termo": true,
     "device_name": "iphone-maria"
   }'</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { API } from "@/config/api";
 
-try {
-  const { data } = await api('/auth/cadastro', {
-    method: 'POST',
-    body: {
-      nome,
-      email,
-      telefone,
-      senha,
-      aceite_termo: aceitouTermo // valor do Switch/Checkbox
+async function cadastrar() {
+  if (!aceitouTermo) {
+    mostrarMensagem("Aceite o termo de consentimento para continuar.");
+    return;
+  }
+
+  setCarregando(true);
+
+  try {
+    const resposta = await fetch(`${API}/auth/cadastro`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        nome: nome.trim(),
+        email: email.trim(),
+        telefone: telefone.trim(),
+        senha: senha,
+        aceite_termo: aceitouTermo, // valor do Switch/Checkbox
+        device_name: await nomeDoDispositivo(), // veja o Login
+      }),
+    });
+
+    const json = await resposta.json();
+
+    // 422: e-mail já cadastrado, senha curta, campo vazio...
+    if (!resposta.ok || !json.success) {
+      mostrarMensagem(json.message);
+      return;
     }
-  });
 
-  // Já entra logado
-  await AsyncStorage.setItem('token', data.token);
-} catch (erro) {
-  // erro.errors.email[0] -> "Este e-mail já está cadastrado."
-  // erro.errors.aceite_termo[0] -> "É necessário aceitar o termo..."
-  console.log(erro.errors);
+    // Já entra logado
+    await AsyncStorage.setItem("token", json.data.token);
+    await AsyncStorage.setItem("cliente", JSON.stringify(json.data.cliente));
+
+    router.replace("/home");
+  } catch (erro) {
+    console.log("Erro ao cadastrar:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  } finally {
+    setCarregando(false);
+  }
 }</code></pre></div>
                 </div>
 
@@ -1407,11 +1477,29 @@ try {
                     <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/logout \
   -H "Accept: application/json" \
   -H "Authorization: Bearer {token}"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { API } from "@/config/api";
 
-await api('/auth/logout', { method: 'POST' });
-await AsyncStorage.removeItem('token');</code></pre></div>
+async function sair() {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    await fetch(`${API}/auth/logout`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (erro) {
+    console.log("Erro ao sair:", erro);
+  } finally {
+    // Mesmo sem internet, remove a sessão do aparelho
+    await AsyncStorage.multiRemove(["token", "cliente"]);
+    router.replace("/login");
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -1472,9 +1560,34 @@ await AsyncStorage.removeItem('token');</code></pre></div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/cliente \
   -H "Accept: application/json" \
   -H "Authorization: Bearer {token}"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
 
-const { data: cliente } = await api('/cliente');</code></pre></div>
+async function carregarCliente() {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/cliente`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await resposta.json();
+
+    // 401: "Sessão expirada. Faça login novamente."
+    if (!resposta.ok) {
+      mostrarMensagem(json.message);
+      return;
+    }
+
+    setCliente(json.data);
+  } catch (erro) {
+    console.log("Erro ao carregar cliente:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -1616,23 +1729,47 @@ const { data: cliente } = await api('/cliente');</code></pre></div>
     "email_cliente": "maria@email.com",
     "telefone_cliente": "(11)98888-0000"
   }'</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
 
-try {
-  const { data: cliente } = await api('/cliente', {
-    method: 'PUT',
-    body: {
-      nome_cliente: 'Maria Souza',
-      tipo_cliente: 'PF',
-      cpf_cnpj_cliente: '123.456.789-00',
-      data_nasc_cliente: '1990-05-12',
-      email_cliente: 'maria@email.com',
-      telefone_cliente: '(11)98888-0000'
+async function salvarPerfil() {
+  setCarregando(true);
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/cliente`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        nome_cliente: nome.trim(),
+        tipo_cliente: "PF",
+        cpf_cnpj_cliente: cpf,
+        data_nasc_cliente: dataNascimento, // "1990-05-12"
+        email_cliente: email.trim(),
+        telefone_cliente: telefone.trim(),
+      }),
+    });
+
+    const json = await resposta.json();
+
+    // 422: e-mail ou CPF já usados, campo vazio...
+    if (!resposta.ok || !json.success) {
+      mostrarMensagem(json.message);
+      return;
     }
-  });
-} catch (erro) {
-  // erro.errors.email_cliente[0], erro.errors.cpf_cnpj_cliente[0]...
-  console.log(erro.errors);
+
+    setCliente(json.data);
+    mostrarMensagem(json.message); // "Dados atualizados com sucesso."
+  } catch (erro) {
+    console.log("Erro ao salvar perfil:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  } finally {
+    setCarregando(false);
+  }
 }</code></pre></div>
                 </div>
 
@@ -1742,16 +1879,39 @@ try {
     "nova_senha": "novaSenha2026",
     "nova_senha_confirmation": "novaSenha2026"
   }'</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
 
-await api('/cliente/senha', {
-  method: 'PUT',
-  body: {
-    senha_atual: '12345678',
-    nova_senha: 'novaSenha2026',
-    nova_senha_confirmation: 'novaSenha2026'
+async function alterarSenha() {
+  setCarregando(true);
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/cliente/senha`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        senha_atual: senhaAtual,
+        nova_senha: novaSenha,
+        nova_senha_confirmation: confirmarSenha,
+      }),
+    });
+
+    const json = await resposta.json();
+
+    // 422: "Senha atual incorreta." ou confirmação diferente
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao alterar senha:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  } finally {
+    setCarregando(false);
   }
-});</code></pre></div>
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -1835,13 +1995,29 @@ await api('/cliente/senha', {
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/banners \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { useEffect, useState } from 'react';
-import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { useEffect, useState } from "react";
+import { API } from "@/config/api";
 
 const [banners, setBanners] = useState([]);
 
-useEffect(() => {
-  api('/banners').then(({ data }) => setBanners(data));
+useEffect(() =&gt; {
+  async function carregarBanners() {
+    try {
+      const resposta = await fetch(`${API}/banners`, {
+        headers: { Accept: "application/json" },
+      });
+
+      const json = await resposta.json();
+
+      if (resposta.ok) {
+        setBanners(json.data);
+      }
+    } catch (erro) {
+      console.log("Erro ao carregar banners:", erro);
+    }
+  }
+
+  carregarBanners();
 }, []);</code></pre></div>
                 </div>
 
@@ -1902,9 +2078,23 @@ useEffect(() => {
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/categorias \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
 
-const { data: categorias } = await api('/categorias');</code></pre></div>
+async function carregarCategorias() {
+  try {
+    const resposta = await fetch(`${API}/categorias`, {
+      headers: { Accept: "application/json" },
+    });
+
+    const json = await resposta.json();
+
+    if (resposta.ok) {
+      setCategorias(json.data);
+    }
+  } catch (erro) {
+    console.log("Erro ao carregar categorias:", erro);
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -1988,13 +2178,32 @@ const { data: categorias } = await api('/categorias');</code></pre></div>
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/categorias/1/produtos \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { useLocalSearchParams } from "expo-router";
+import { API } from "@/config/api";
 
-const id = 1;
-const { data } = await api(`/categorias/${id}/produtos`);
+// Rota do app: /categoria/[id]
+const { id } = useLocalSearchParams();
 
-// data.categoria  -> dados da categoria
-// data.produtos   -> lista de produtos</code></pre></div>
+async function carregarProdutos() {
+  try {
+    const resposta = await fetch(`${API}/categorias/${id}/produtos`, {
+      headers: { Accept: "application/json" },
+    });
+
+    const json = await resposta.json();
+
+    // 404: "Recurso não encontrado."
+    if (!resposta.ok) {
+      mostrarMensagem(json.message);
+      return;
+    }
+
+    setCategoria(json.data.categoria);
+    setProdutos(json.data.produtos);
+  } catch (erro) {
+    console.log("Erro ao carregar produtos:", erro);
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -2096,11 +2305,26 @@ const { data } = await api(`/categorias/${id}/produtos`);
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/produtos \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
 
-const { data: produtos } = await api('/produtos');
+async function carregarProdutos() {
+  try {
+    const resposta = await fetch(`${API}/produtos`, {
+      headers: { Accept: "application/json" },
+    });
 
-// Ex.: produtos.filter(p => p.destaque_produto === 'SIM')</code></pre></div>
+    const json = await resposta.json();
+
+    if (resposta.ok) {
+      setProdutos(json.data);
+
+      // Ex.: só os destaques
+      setDestaques(json.data.filter((p) =&gt; p.destaque_produto === "SIM"));
+    }
+  } catch (erro) {
+    console.log("Erro ao carregar produtos:", erro);
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
@@ -2191,11 +2415,31 @@ const { data: produtos } = await api('/produtos');
                     </div>
                     <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/produtos/bolo-banana-fit \
   -H "Accept: application/json"</code></pre></div>
-                    <div class="panel"><pre><code data-lang="js">import { api } from './services/api';
+                    <div class="panel"><pre><code data-lang="js">import { useLocalSearchParams } from "expo-router";
+import { API } from "@/config/api";
 
-// Ex.: slug recebido pela navegação (route.params.slug)
-const slug = 'bolo-banana-fit';
-const { data: produto } = await api(`/produtos/${slug}`);</code></pre></div>
+// Rota do app: /produto/[slug]
+const { slug } = useLocalSearchParams();
+
+async function carregarProduto() {
+  try {
+    const resposta = await fetch(`${API}/produtos/${slug}`, {
+      headers: { Accept: "application/json" },
+    });
+
+    const json = await resposta.json();
+
+    // 404: "Recurso não encontrado."
+    if (!resposta.ok) {
+      mostrarMensagem(json.message);
+      return;
+    }
+
+    setProduto(json.data);
+  } catch (erro) {
+    console.log("Erro ao carregar produto:", erro);
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
