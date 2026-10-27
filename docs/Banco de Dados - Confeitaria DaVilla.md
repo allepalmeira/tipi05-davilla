@@ -273,7 +273,7 @@ Tabela de Cupons de Desconto: Será necessário permitir a utilização de cupon
 
 Alterações necessárias em tbl_vendas: A tabela tbl_vendas já registra os pedidos realizados, porém precisará receber novas informações para atender o aplicativo.
 
-Estrutura atual principal:
+Estrutura principal original (antes das alterações abaixo):
 
        id_venda
        id_cliente
@@ -314,7 +314,7 @@ Cupom e desconto, caso o cliente utilize um cupom:
        tbl_vendas.id_cupom
        tbl_cupons.id_cupom
 
-Também é vamos registrar o valor_desconto_venda porque preservamos na venda o valor efetivamente concedido naquele momento.
+Também vamos registrar o valor_desconto_venda porque preservamos na venda o valor efetivamente concedido naquele momento.
 
 Mapa da venda:
 
@@ -332,6 +332,72 @@ Mapa da venda:
               └── pode incluir uma observação
 
 
+Ajustes de tbl_vendas para receber pedidos do aplicativo
+(migration 2026_10_27_130000_adjust_tbl_vendas_for_orders):
+
+       id_usuario: passa a aceitar NULL, porque o pedido feito pelo aplicativo não tem atendente.
+       A equipe pode assumir o pedido depois (a chave estrangeira continua valendo).
+
+       status_venda: valor padrão PENDENTE e somente os valores abaixo são aceitos
+       (constraint chk_status_venda):
+
+              PENDENTE      pedido recebido, aguardando confirmação
+              CONFIRMADO    pedido aceito pela confeitaria
+              EM_PREPARO    em produção
+              PRONTO        pronto para retirada ou envio
+              EM_ENTREGA    saiu para entrega
+              ENTREGUE      concluído
+              CANCELADO     cancelado
+
+       data_entrega_venda: continua obrigatório. O cliente agenda a data da encomenda.
+
+Estrutura atual de tbl_vendas (DESCRIBE tbl_vendas, após todas as migrations):
+
++-----------------------+--------------+------+-----+-------------------+
+| Field                 | Type         | Null | Key | Default           |
++-----------------------+--------------+------+-----+-------------------+
+| id_venda              | int          | NO   | PRI | NULL              |
+| id_cliente            | int          | NO   | MUL | NULL              |
+| id_usuario            | int          | YES  | MUL | NULL              |
+| id_endereco           | int          | YES  | MUL | NULL              |
+| id_cupom              | int          | YES  | MUL | NULL              |
+| data_venda            | datetime     | NO   |     | CURRENT_TIMESTAMP |
+| valor_venda           | double(10,2) | NO   |     | NULL              |
+| forma_pagamento_venda | varchar(10)  | YES  |     | NULL              |
+| entrega_venda         | varchar(3)   | NO   |     | NAO               |
+| observacao_venda      | text         | YES  |     | NULL              |
+| valor_desconto_venda  | double       | NO   |     | 0                 |
+| status_venda          | varchar(12)  | NO   |     | PENDENTE          |
+| data_entrega_venda    | datetime     | NO   |     | NULL              |
+| atualizado_em_venda   | datetime     | NO   |     | CURRENT_TIMESTAMP |
++-----------------------+--------------+------+-----+-------------------+
+
+Regras do banco (constraints) em tbl_vendas:
+
+       chk_forma_pagamento_venda   forma_pagamento_venda: PIX, DINHEIRO ou CARTAO
+       chk_entrega_venda           entrega_venda: SIM ou NAO
+       chk_entrega_endereco_venda  entrega_venda = SIM exige id_endereco preenchido
+       chk_status_venda            status_venda: os valores listados acima
+
+Regras de negócio do pedido (aplicadas pela API em POST /api/v1/pedidos):
+
+       Cupom: valor_desconto_cupom é um PERCENTUAL sobre o subtotal (10 = 10%), e não um valor em reais.
+       O cupom precisa estar ATIVO e dentro de data_inicio_cupom e data_fim_cupom.
+
+       valor_venda: é o total já com o desconto aplicado (subtotal - valor_desconto_venda).
+       valor_desconto_venda: é o desconto em reais efetivamente concedido, preservado na venda
+       mesmo que o cupom seja alterado depois.
+
+       valor_unit_item: é o preço do produto no momento do pedido, lido sempre de tbl_produtos
+       pelo servidor. Reajustes futuros não alteram pedidos antigos.
+
+       status_item: o pedido grava os itens como ATIVO.
+
+       Pedidos criados pelo aplicativo: id_usuario NULL, status_venda PENDENTE.
+
+Observação: o levantamento com DESCRIBE no início deste documento é o registro do banco original
+e foi mantido assim de propósito. A estrutura atual de tbl_vendas está no bloco acima.
+
 Criação das migration:
 
 docker compose exec php php artisan make:migration create_tbl_favoritos_table
@@ -339,6 +405,7 @@ docker compose exec php php artisan make:migration create_tbl_enderecos_cliente_
 docker compose exec php php artisan make:migration create_tbl_depoimentos_table
 docker compose exec php php artisan make:migration create_tbl_cupons_table
 docker compose exec php php artisan make:migration alter_tbl_vendas_for_app
+docker compose exec php php artisan make:migration adjust_tbl_vendas_for_orders
 
 
  ls -ls src/database/migrations | tail -n 10
