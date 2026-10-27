@@ -80,6 +80,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Usuario::class,
         ],
+        'clientes' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Cliente::class,
+        ],
 
 
 
@@ -111,6 +115,14 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // Clientes do aplicativo (link de redefinição válido por 60 minutos)
+        'clientes' => [
+            'provider' => 'clientes',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

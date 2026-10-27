@@ -43,6 +43,14 @@ Route::get('/home/produto/{slug}', [HomeController::class, 'linkProduto'])->name
 
 Route::view('/api/documentacao', 'api.documentacao')->name('api.documentacao');
 
+// Página aberta pelo link do e-mail de recuperação de senha do aplicativo
+Route::get('/redefinir-senha', function (\Illuminate\Http\Request $request) {
+    return view('site.senha.redefinir', [
+        'token' => (string) $request->query('token'),
+        'email' => (string) $request->query('email'),
+    ]);
+})->name('senha.redefinir');
+
 
 // INICIO DO PREFIX ADMIN
 Route::prefix('admin')->name('admin.')->group(function () {

@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -108,6 +109,79 @@ class AuthController extends Controller
                 ]
             ]
         ], 201);
+    }
+
+
+    public function esqueciSenha(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+        ]);
+
+        $cliente = Cliente::where('email_cliente', $dados['email'])
+            ->where('status_cliente', 'ATIVO')
+            ->first();
+
+        // A resposta é sempre a mesma, exista o e-mail ou não (evita descobrir quem é cliente)
+        if ($cliente) {
+            try {
+                Password::broker('clientes')->sendResetLink(['email_cliente' => $cliente->email_cliente]);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha.'
+        ]);
+    }
+
+
+    public function redefinirSenha(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'nova_senha' => 'required|string|min:8|confirmed',
+        ], [
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+            'token.required' => 'Link inválido ou expirado. Solicite um novo.',
+            'nova_senha.required' => 'Informe a nova senha.',
+            'nova_senha.min' => 'A nova senha deve ter no mínimo 8 caracteres.',
+            'nova_senha.confirmed' => 'A confirmação da nova senha não confere.',
+        ]);
+
+        $status = Password::broker('clientes')->reset(
+            [
+                'email_cliente' => $dados['email'],
+                'password' => $dados['nova_senha'],
+                'token' => $dados['token'],
+            ],
+            function (Cliente $cliente, string $senha) {
+                $cliente->senha_cliente = Hash::make($senha);
+                $cliente->save();
+
+                // Encerra as sessões abertas em todos os aparelhos
+                $cliente->tokens()->delete();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Link inválido ou expirado. Solicite um novo.'
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Senha redefinida com sucesso.'
+        ]);
     }
 
 

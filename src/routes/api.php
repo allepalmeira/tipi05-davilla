@@ -10,6 +10,9 @@ use App\Http\Controllers\Api\V1\ProdutoController;
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ClienteController;
+use App\Http\Controllers\Api\V1\FavoritoController;
+use App\Http\Controllers\Api\V1\EnderecoController;
+use App\Http\Controllers\Api\V1\PedidoController;
 
 Route::prefix('v1')->group(function () {
 
@@ -18,6 +21,10 @@ Route::prefix('v1')->group(function () {
 
     // CADASTRO - rota pública (limite de 10 cadastros por minuto por IP)
     Route::post('/auth/cadastro', [AuthController::class, 'cadastro'])->middleware('throttle:10,1');
+
+    // RECUPERAÇÃO DE SENHA - rotas públicas
+    Route::post('/auth/esqueci-senha', [AuthController::class, 'esqueciSenha'])->middleware('throttle:5,1');
+    Route::post('/auth/redefinir-senha', [AuthController::class, 'redefinirSenha'])->middleware('throttle:10,1');
 
     // ROTAS COM CREDENCIAL
     Route::middleware('auth:sanctum')->group(function () {
@@ -36,6 +43,31 @@ Route::prefix('v1')->group(function () {
             '/cliente/senha',
             [ClienteController::class, 'updateSenha']
         );
+
+        // Favoritos
+        Route::get('/favoritos', [FavoritoController::class, 'index']);
+        Route::post('/favoritos', [FavoritoController::class, 'store']);
+        Route::delete('/favoritos/{id_produto}', [FavoritoController::class, 'destroy'])->whereNumber('id_produto');
+
+        // Pedidos
+        Route::get('/pedidos', [PedidoController::class, 'index']);
+        Route::post('/pedidos', [PedidoController::class, 'store'])->middleware('throttle:20,1');
+        Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->whereNumber('id');
+        Route::get('/pedidos/{id}/status', [PedidoController::class, 'status'])->whereNumber('id');
+        Route::put('/pedidos/{id}/cancelar', [PedidoController::class, 'cancelar'])->whereNumber('id');
+
+        // Foto do cliente (POST porque envia arquivo via multipart/form-data)
+        Route::post('/cliente/foto', [ClienteController::class, 'updateFoto']);
+        Route::delete('/cliente/foto', [ClienteController::class, 'destroyFoto']);
+
+        // Endereços
+        Route::get('/enderecos', [EnderecoController::class, 'index']);
+        Route::post('/enderecos', [EnderecoController::class, 'store']);
+        Route::get('/enderecos/{id}', [EnderecoController::class, 'show'])->whereNumber('id');
+        Route::put('/enderecos/{id}', [EnderecoController::class, 'update'])->whereNumber('id');
+        Route::patch('/enderecos/{id}', [EnderecoController::class, 'update'])->whereNumber('id');
+        Route::put('/enderecos/{id}/principal', [EnderecoController::class, 'principal'])->whereNumber('id');
+        Route::delete('/enderecos/{id}', [EnderecoController::class, 'destroy'])->whereNumber('id');
 
         // Logout
         Route::post('/auth/logout', [AuthController::class, 'logout']);

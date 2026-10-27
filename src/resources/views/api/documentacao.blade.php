@@ -616,6 +616,8 @@
         <div class="nav-title">Autenticação</div>
         <a class="nav-link" href="#post-login"><span class="method post">POST</span> Login</a>
         <a class="nav-link" href="#post-cadastro"><span class="method post">POST</span> Cadastro</a>
+        <a class="nav-link" href="#post-esqueci-senha"><span class="method post">POST</span> Esqueci minha senha</a>
+        <a class="nav-link" href="#post-redefinir-senha"><span class="method post">POST</span> Redefinir senha</a>
         <a class="nav-link" href="#post-logout"><span class="method post">POST</span> Logout</a>
     </div>
 
@@ -624,6 +626,34 @@
         <a class="nav-link" href="#get-cliente"><span class="method get">GET</span> Dados do cliente</a>
         <a class="nav-link" href="#put-cliente"><span class="method put">PUT</span> Atualizar cliente</a>
         <a class="nav-link" href="#put-cliente-senha"><span class="method put">PUT</span> Alterar senha</a>
+        <a class="nav-link" href="#post-cliente-foto"><span class="method post">POST</span> Enviar foto</a>
+        <a class="nav-link" href="#delete-cliente-foto"><span class="method delete">DELETE</span> Remover foto</a>
+    </div>
+
+    <div class="nav-group">
+        <div class="nav-title">Pedidos</div>
+        <a class="nav-link" href="#post-pedidos"><span class="method post">POST</span> Criar pedido</a>
+        <a class="nav-link" href="#get-pedidos"><span class="method get">GET</span> Histórico de pedidos</a>
+        <a class="nav-link" href="#get-pedido"><span class="method get">GET</span> Detalhar pedido</a>
+        <a class="nav-link" href="#get-pedido-status"><span class="method get">GET</span> Status do pedido</a>
+        <a class="nav-link" href="#put-pedido-cancelar"><span class="method put">PUT</span> Cancelar pedido</a>
+    </div>
+
+    <div class="nav-group">
+        <div class="nav-title">Endereços</div>
+        <a class="nav-link" href="#get-enderecos"><span class="method get">GET</span> Listar endereços</a>
+        <a class="nav-link" href="#post-enderecos"><span class="method post">POST</span> Cadastrar endereço</a>
+        <a class="nav-link" href="#get-endereco"><span class="method get">GET</span> Detalhar endereço</a>
+        <a class="nav-link" href="#put-endereco"><span class="method put">PUT</span> Atualizar endereço</a>
+        <a class="nav-link" href="#put-endereco-principal"><span class="method put">PUT</span> Definir principal</a>
+        <a class="nav-link" href="#delete-endereco"><span class="method delete">DELETE</span> Remover endereço</a>
+    </div>
+
+    <div class="nav-group">
+        <div class="nav-title">Favoritos</div>
+        <a class="nav-link" href="#get-favoritos"><span class="method get">GET</span> Listar favoritos</a>
+        <a class="nav-link" href="#post-favoritos"><span class="method post">POST</span> Favoritar produto</a>
+        <a class="nav-link" href="#delete-favoritos"><span class="method delete">DELETE</span> Remover favorito</a>
     </div>
 
     <div class="nav-group">
@@ -862,10 +892,33 @@ if (resposta.status === 401) {
                     </tr>
                     <tr>
                         <td><code>{{token}}</code></td>
-                        <td>Preenchida automaticamente após o login.</td>
+                        <td>Preenchida automaticamente após o login ou o cadastro.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{endereco_id}}</code></td>
+                        <td>Preenchida ao executar <strong>Endereços › Cadastrar endereço</strong>. Usada nas rotas de endereço e no pedido com entrega.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{pedido_id}}</code></td>
+                        <td>Preenchida ao executar <strong>Pedidos › Criar pedido</strong>. Usada em detalhar, status e cancelar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{data_entrega}}</code></td>
+                        <td>Calculada automaticamente (2 dias à frente, às 15h), para o pedido sempre ter uma data futura.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{codigo_cupom}}</code></td>
+                        <td>Vazia por padrão (pedido sem cupom). Preencha com um cupom válido para testar o desconto.</td>
                     </tr>
                 </tbody>
             </table>
+
+            <p>
+                As pastas seguem a ordem de um fluxo completo (cadastro, endereço, favoritos, pedido), então é possível
+                executar a coleção inteira no <strong>Runner</strong>. O <strong>Logout</strong> encerra o token; para
+                rodar tudo de uma vez, deixe-o por último ou desmarque-o. O cadastro de exemplo usa um e-mail fixo e só
+                funciona uma vez: troque o e-mail para repetir.
+            </p>
 
             <p>
                 A coleção é baixada com o <code>{{base_url}}</code> do ambiente selecionado no topo da página.
@@ -985,7 +1038,7 @@ if (json.success) {
         <div class="doc">
             <h2>Imagens</h2>
             <p>
-                Campos de imagem como <code>foto_produto</code> e <code>foto_banner</code> retornam um
+                Campos de imagem como <code>foto_produto</code>, <code>foto_banner</code> e <code>foto_cliente</code> retornam um
                 <strong>caminho relativo</strong>. Para montar a URL completa, concatene com:
             </p>
             <p><code class="js-images">{{IMAGES_URL}}</code></p>
@@ -1432,6 +1485,186 @@ async function cadastrar() {
   "errors": {
     "email": ["Este e-mail já está cadastrado."],
     "aceite_termo": ["É necessário aceitar o termo de consentimento."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /auth/esqueci-senha ========== -->
+    <section class="section" id="post-esqueci-senha">
+        <div class="doc">
+            <div class="group-label">Autenticação</div>
+            <h2>Esqueci minha senha</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/auth/esqueci-senha</span>
+                <span class="auth-tag public">Público</span>
+            </div>
+
+            <p>Envia ao e-mail do cliente um link para redefinir a senha. O link abre uma página web onde o cliente digita a nova senha, e vale por <strong>60 minutos</strong>.</p>
+            <p>A resposta é <strong>sempre a mesma</strong>, exista o e-mail ou não, para não revelar quem é cliente. Só é enviado e-mail a clientes ativos. Limite de 5 pedidos por minuto, e o mesmo cliente só recebe um novo link a cada 60 segundos.</p>
+            <p>Este fluxo é diferente de <a href="#put-cliente-senha">Alterar senha</a>, que exige estar logado e conhecer a senha atual.</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li>
+                    <div class="param-head">
+                        <span class="param-name">email</span>
+                        <span class="param-type">string</span>
+                        <span class="param-req">obrigatório</span>
+                    </div>
+                    <div class="param-desc">E-mail cadastrado do cliente.</div>
+                </li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Pedido recebido (o e-mail só é enviado se o cadastro existir).</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>E-mail ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas. Aguarde um minuto.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/esqueci-senha \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "maria@email.com"
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
+
+async function esqueciSenha(email) {
+  try {
+    const resposta = await fetch(`${API}/auth/esqueci-senha`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const json = await resposta.json();
+
+    // Mostre sempre esta mensagem: ela não revela se o e-mail existe
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao solicitar redefinição:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Informe um e-mail válido.",
+  "errors": {
+    "email": ["Informe um e-mail válido."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /auth/redefinir-senha ========== -->
+    <section class="section" id="post-redefinir-senha">
+        <div class="doc">
+            <div class="group-label">Autenticação</div>
+            <h2>Redefinir senha</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/auth/redefinir-senha</span>
+                <span class="auth-tag public">Público</span>
+            </div>
+
+            <p>Define a nova senha usando o <code>token</code> recebido no link do e-mail. Normalmente <strong>quem chama este endpoint é a página web do link</strong> (<code>/redefinir-senha?token=…&amp;email=…</code>), que já vem pronta e não exige trabalho do aplicativo.</p>
+            <p>O token vale por 60 minutos e só pode ser usado uma vez. Ao redefinir, todas as sessões abertas do cliente são encerradas (é preciso fazer login de novo, em todos os aparelhos).</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li><div class="param-head"><span class="param-name">email</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">E-mail do cliente (vem no link).</div></li>
+                <li><div class="param-head"><span class="param-name">token</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Token do link.</div></li>
+                <li><div class="param-head"><span class="param-name">nova_senha</span><span class="param-type">string · mín. 8</span><span class="param-req">obrigatório</span></div><div class="param-desc">Nova senha.</div></li>
+                <li><div class="param-head"><span class="param-name">nova_senha_confirmation</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Repetição da nova senha.</div></li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Senha redefinida.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Link inválido, expirado ou já usado; ou senha inválida / não confirmada.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas. Aguarde um minuto.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/redefinir-senha \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "maria@email.com",
+    "token": "ebc27342699be2520f8da7b6537d0b68...",
+    "nova_senha": "novaSenha2026",
+    "nova_senha_confirmation": "novaSenha2026"
+  }'</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422 link</button>
+                        <button class="tab" data-panel="2"><span class="dot s4"></span>422 senha</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Senha redefinida com sucesso."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Link inválido ou expirado. Solicite um novo."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "A confirmação da nova senha não confere.",
+  "errors": {
+    "nova_senha": ["A confirmação da nova senha não confere."]
   }
 }</code></pre></div>
                 </div>
@@ -1936,6 +2169,1599 @@ async function alterarSenha() {
   "errors": {
     "nova_senha": ["A confirmação do campo nova senha não confere."]
   }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /cliente/foto ========== -->
+    <section class="section" id="post-cliente-foto">
+        <div class="doc">
+            <div class="group-label">Cliente</div>
+            <h2>Enviar foto</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/cliente/foto</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Define a foto de perfil do cliente autenticado. Se já havia uma foto, ela é substituída (e o arquivo antigo é apagado). O campo <code>foto_cliente</code> retorna um caminho relativo; veja <a href="#imagens">Imagens</a> para montar a URL.</p>
+            <p>Use <code>multipart/form-data</code>. Não envie JSON e não defina o <code>Content-Type</code> manualmente (o cliente HTTP inclui o <em>boundary</em>).</p>
+
+            <h3>Corpo da requisição (form-data)</h3>
+            <ul class="params">
+                <li>
+                    <div class="param-head">
+                        <span class="param-name">foto_cliente</span>
+                        <span class="param-type">arquivo · JPG, PNG ou WEBP · máx. 2 MB</span>
+                        <span class="param-req">obrigatório</span>
+                    </div>
+                    <div class="param-desc">Imagem de perfil.</div>
+                </li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Foto atualizada. Retorna o cliente.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Arquivo ausente, não é imagem, formato inválido ou maior que 2 MB.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/cliente/foto \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -F "foto_cliente=@/caminho/foto.png"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import { API } from "@/config/api";
+
+async function enviarFoto() {
+  const escolha = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    quality: 0.7,
+  });
+  if (escolha.canceled) return;
+
+  const imagem = escolha.assets[0];
+  const token = await AsyncStorage.getItem("token");
+
+  const form = new FormData();
+  form.append("foto_cliente", {
+    uri: imagem.uri,
+    name: "foto.jpg",
+    type: imagem.mimeType ?? "image/jpeg",
+  });
+
+  try {
+    // Não defina Content-Type: o fetch inclui o boundary sozinho
+    const resposta = await fetch(`${API}/cliente/foto`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: form,
+    });
+
+    const json = await resposta.json();
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao enviar foto:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Foto atualizada com sucesso.",
+  "data": {
+    "id_cliente": 7,
+    "nome_cliente": "Maria Silva",
+    "email_cliente": "maria@email.com",
+    "foto_cliente": "cliente/cliente-7-kd4rvg1b.png"
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "A foto deve ter no máximo 2 MB.",
+  "errors": {
+    "foto_cliente": ["A foto deve ter no máximo 2 MB."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== DELETE /cliente/foto ========== -->
+    <section class="section" id="delete-cliente-foto">
+        <div class="doc">
+            <div class="group-label">Cliente</div>
+            <h2>Remover foto</h2>
+
+            <div class="endpoint-line">
+                <span class="method delete">DELETE</span>
+                <span class="path">/cliente/foto</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Remove a foto de perfil do cliente autenticado. <code>foto_cliente</code> volta a <code>null</code>. Pode ser chamado mesmo sem foto cadastrada.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Foto removida. Retorna o cliente.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X DELETE {{BASE_URL}}/cliente/foto \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function removerFoto() {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/cliente/foto`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  mostrarMensagem(json.message);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Foto removida com sucesso.",
+  "data": {
+    "id_cliente": 7,
+    "nome_cliente": "Maria Silva",
+    "email_cliente": "maria@email.com",
+    "foto_cliente": null
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /pedidos ========== -->
+    <section class="section" id="post-pedidos">
+        <div class="doc">
+            <div class="group-label">Pedidos</div>
+            <h2>Criar pedido</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/pedidos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Cria um pedido (com seus itens) para o cliente autenticado. O pedido nasce com status <code>PENDENTE</code>.</p>
+            <p><strong>Os preços são sempre os do servidor.</strong> O app envia apenas o produto e a quantidade; o valor unitário é lido do cadastro do produto e gravado no item no momento do pedido, então reajustes futuros não alteram pedidos antigos. Itens com o mesmo produto são somados.</p>
+            <p>O <strong>cupom</strong> é um percentual aplicado sobre o subtotal. <code>valor_venda</code> é o total já com desconto, e <code>valor_desconto_venda</code> é o valor em R$ concedido.</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li><div class="param-head"><span class="param-name">itens</span><span class="param-type">array · 1 a 50</span><span class="param-req">obrigatório</span></div><div class="param-desc">Lista de produtos do pedido.</div></li>
+                <li><div class="param-head"><span class="param-name">itens[].id_produto</span><span class="param-type">integer</span><span class="param-req">obrigatório</span></div><div class="param-desc">Produto ativo, de categoria ativa.</div></li>
+                <li><div class="param-head"><span class="param-name">itens[].quantidade</span><span class="param-type">integer · 1 a 99</span><span class="param-req">obrigatório</span></div><div class="param-desc">Quantidade.</div></li>
+                <li><div class="param-head"><span class="param-name">entrega</span><span class="param-type">SIM | NAO</span><span class="param-req">obrigatório</span></div><div class="param-desc"><code>SIM</code> para entrega, <code>NAO</code> para retirada na loja.</div></li>
+                <li><div class="param-head"><span class="param-name">id_endereco</span><span class="param-type">integer</span><span class="param-req">obrigatório se entrega = SIM</span></div><div class="param-desc">Endereço do próprio cliente (veja <a href="#get-enderecos">Endereços</a>). Ignorado na retirada.</div></li>
+                <li><div class="param-head"><span class="param-name">forma_pagamento</span><span class="param-type">PIX | DINHEIRO | CARTAO</span><span class="param-req">obrigatório</span></div><div class="param-desc">Forma de pagamento.</div></li>
+                <li><div class="param-head"><span class="param-name">data_entrega</span><span class="param-type">datetime</span><span class="param-req">obrigatório</span></div><div class="param-desc">Data e hora desejadas para a entrega ou retirada. Deve ser futura. Ex.: <code>2026-11-01 15:00</code>.</div></li>
+                <li><div class="param-head"><span class="param-name">observacao</span><span class="param-type">string · máx. 500</span></div><div class="param-desc">Opcional.</div></li>
+                <li><div class="param-head"><span class="param-name">codigo_cupom</span><span class="param-type">string</span></div><div class="param-desc">Opcional. Cupom ativo e dentro da validade.</div></li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">201</span></td><td>Pedido criado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Dados inválidos, produto indisponível, endereço que não é do cliente, cupom inválido ou expirado, ou data passada.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas. Limite de 20 por minuto.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/pedidos \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "itens": [
+      { "id_produto": 1, "quantidade": 3 },
+      { "id_produto": 2, "quantidade": 1 }
+    ],
+    "entrega": "SIM",
+    "id_endereco": 6,
+    "forma_pagamento": "PIX",
+    "data_entrega": "2026-11-01 15:00",
+    "observacao": "Sem granulado",
+    "codigo_cupom": "TESTE10"
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function finalizarPedido(carrinho, enderecoId) {
+  setCarregando(true);
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/pedidos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        // Só produto e quantidade: o preço vem do servidor
+        itens: carrinho.map((i) => ({
+          id_produto: i.id_produto,
+          quantidade: i.quantidade,
+        })),
+        entrega: enderecoId ? "SIM" : "NAO",
+        id_endereco: enderecoId,
+        forma_pagamento: "PIX",
+        data_entrega: "2026-11-01 15:00",
+        codigo_cupom: cupom || undefined,
+      }),
+    });
+
+    const json = await resposta.json();
+
+    if (resposta.status === 201) {
+      limparCarrinho();
+      irParaPedido(json.data.id_venda);
+    } else {
+      // 422: json.errors traz o erro de cada campo
+      mostrarMensagem(json.message);
+    }
+  } catch (erro) {
+    console.log("Erro ao finalizar pedido:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  } finally {
+    setCarregando(false);
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>201</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422 cupom</button>
+                        <button class="tab" data-panel="2"><span class="dot s4"></span>422 validação</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Pedido realizado com sucesso.",
+  "data": {
+    "id_venda": 3,
+    "id_cliente": 8,
+    "id_usuario": null,
+    "id_endereco": 6,
+    "id_cupom": 1,
+    "data_venda": "2026-10-27T14:20:11.000000Z",
+    "valor_venda": 54.54,
+    "forma_pagamento_venda": "PIX",
+    "entrega_venda": "SIM",
+    "observacao_venda": "Sem granulado",
+    "valor_desconto_venda": 6.06,
+    "status_venda": "PENDENTE",
+    "data_entrega_venda": "2026-11-01T15:00:00.000000Z",
+    "subtotal_venda": 60.6,
+    "status_descricao_venda": "Aguardando confirmação",
+    "itens": [
+      {
+        "id_item": 1,
+        "id_produto": 1,
+        "valor_unit_item": 14.9,
+        "qtde_item": 3,
+        "status_item": "ATIVO",
+        "produto": { "id_produto": 1, "nome_produto": "…", "slug_produto": "…", "foto_produto": "produto/…" }
+      },
+      {
+        "id_item": 2,
+        "id_produto": 2,
+        "valor_unit_item": 15.9,
+        "qtde_item": 1,
+        "status_item": "ATIVO",
+        "produto": { "id_produto": 2, "nome_produto": "…", "slug_produto": "…", "foto_produto": "produto/…" }
+      }
+    ],
+    "endereco": { "id_endereco": 6, "nome_endereco": "Casa", "endereco": "Rua A", "numero": "1" },
+    "cupom": { "id_cupom": 1, "codigo_cupom": "TESTE10", "valor_desconto_cupom": 10 }
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Cupom inválido ou expirado.",
+  "errors": {
+    "codigo_cupom": ["Cupom inválido ou expirado."]
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Informe ao menos um item.",
+  "errors": {
+    "itens": ["Informe ao menos um item."],
+    "forma_pagamento": ["Forma de pagamento inválida. Use PIX, DINHEIRO ou CARTAO."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /pedidos ========== -->
+    <section class="section" id="get-pedidos">
+        <div class="doc">
+            <div class="group-label">Pedidos</div>
+            <h2>Histórico de pedidos</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/pedidos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Lista os pedidos do cliente autenticado, do mais recente para o mais antigo, com paginação. Cada pedido traz seus itens e o produto de cada item. Para endereço e cupom, use <a href="#get-pedido">Detalhar pedido</a>.</p>
+
+            <h3>Parâmetros de consulta</h3>
+            <ul class="params">
+                <li><div class="param-head"><span class="param-name">status</span><span class="param-type">string</span></div><div class="param-desc">Opcional. Filtra por <code>PENDENTE</code>, <code>CONFIRMADO</code>, <code>EM_PREPARO</code>, <code>PRONTO</code>, <code>EM_ENTREGA</code>, <code>ENTREGUE</code> ou <code>CANCELADO</code>.</div></li>
+                <li><div class="param-head"><span class="param-name">page</span><span class="param-type">integer</span></div><div class="param-desc">Opcional. Página (padrão 1).</div></li>
+                <li><div class="param-head"><span class="param-name">por_pagina</span><span class="param-type">integer · 1 a 50</span></div><div class="param-desc">Opcional. Pedidos por página (padrão 10).</div></li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Lista de pedidos (vazia se não houver nenhum). O campo <code>meta</code> traz a paginação.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Status ou <code>por_pagina</code> inválido.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl "{{BASE_URL}}/pedidos?status=PENDENTE&page=1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function carregarPedidos(pagina = 1) {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/pedidos?page=${pagina}`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await resposta.json();
+    setPedidos((atuais) => (pagina === 1 ? json.data : [...atuais, ...json.data]));
+    setTemMais(json.meta.pagina_atual < json.meta.ultima_pagina);
+  } catch (erro) {
+    console.log("Erro ao carregar pedidos:", erro);
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": [
+    {
+      "id_venda": 8,
+      "data_venda": "2026-10-27T14:20:11.000000Z",
+      "valor_venda": 18,
+      "valor_desconto_venda": 0,
+      "subtotal_venda": 18,
+      "entrega_venda": "NAO",
+      "status_venda": "PENDENTE",
+      "status_descricao_venda": "Aguardando confirmação",
+      "data_entrega_venda": "2026-11-01T15:00:00.000000Z",
+      "itens": [
+        {
+          "id_item": 12,
+          "id_produto": 5,
+          "valor_unit_item": 4.5,
+          "qtde_item": 4,
+          "status_item": "ATIVO",
+          "produto": { "id_produto": 5, "nome_produto": "…", "foto_produto": "produto/…" }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "pagina_atual": 1,
+    "ultima_pagina": 1,
+    "por_pagina": 10,
+    "total": 1
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /pedidos/{id} ========== -->
+    <section class="section" id="get-pedido">
+        <div class="doc">
+            <div class="group-label">Pedidos</div>
+            <h2>Detalhar pedido</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/pedidos/{id}</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Retorna um pedido do cliente autenticado, com itens, endereço de entrega (se houver) e cupom (se houver). Pedido de outro cliente retorna <code>404</code>. O <code>{id}</code> é o <code>id_venda</code>.</p>
+            <p><code>subtotal_venda</code> é o total antes do desconto. <code>valor_venda</code> é o total cobrado, já com desconto.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Pedido encontrado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Pedido não encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/pedidos/3 \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function carregarPedido(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/pedidos/${id}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  if (json.success) setPedido(json.data);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>404</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": {
+    "id_venda": 3,
+    "id_endereco": 6,
+    "id_cupom": 1,
+    "data_venda": "2026-10-27T14:20:11.000000Z",
+    "valor_venda": 54.54,
+    "valor_desconto_venda": 6.06,
+    "subtotal_venda": 60.6,
+    "forma_pagamento_venda": "PIX",
+    "entrega_venda": "SIM",
+    "observacao_venda": "Sem granulado",
+    "status_venda": "PENDENTE",
+    "status_descricao_venda": "Aguardando confirmação",
+    "data_entrega_venda": "2026-11-01T15:00:00.000000Z",
+    "itens": [
+      {
+        "id_item": 1,
+        "id_produto": 1,
+        "valor_unit_item": 14.9,
+        "qtde_item": 3,
+        "status_item": "ATIVO",
+        "produto": { "id_produto": 1, "nome_produto": "…", "foto_produto": "produto/…" }
+      }
+    ],
+    "endereco": { "id_endereco": 6, "nome_endereco": "Casa", "endereco": "Rua A", "numero": "1" },
+    "cupom": { "id_cupom": 1, "codigo_cupom": "TESTE10", "valor_desconto_cupom": 10 }
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Recurso não encontrado."
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /pedidos/{id}/status ========== -->
+    <section class="section" id="get-pedido-status">
+        <div class="doc">
+            <div class="group-label">Pedidos</div>
+            <h2>Status do pedido</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/pedidos/{id}/status</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Consulta leve para acompanhar o andamento do pedido (por exemplo, atualizando a tela de tempos em tempos). Retorna só o status.</p>
+
+            <h3>Status possíveis</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><code>PENDENTE</code></td><td>Aguardando confirmação (o cliente ainda pode cancelar).</td></tr>
+                    <tr><td><code>CONFIRMADO</code></td><td>Pedido confirmado pela confeitaria.</td></tr>
+                    <tr><td><code>EM_PREPARO</code></td><td>Em preparo.</td></tr>
+                    <tr><td><code>PRONTO</code></td><td>Pronto para retirada ou envio.</td></tr>
+                    <tr><td><code>EM_ENTREGA</code></td><td>Saiu para entrega.</td></tr>
+                    <tr><td><code>ENTREGUE</code></td><td>Concluído.</td></tr>
+                    <tr><td><code>CANCELADO</code></td><td>Cancelado.</td></tr>
+                </tbody>
+            </table>
+            <p>A confeitaria altera o status pelo painel administrativo. O aplicativo só consulta e, enquanto <code>PENDENTE</code>, pode <a href="#put-pedido-cancelar">cancelar</a>.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Status do pedido.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Pedido não encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/pedidos/3/status \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function consultarStatus(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/pedidos/${id}/status`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  if (json.success) setStatus(json.data.status_descricao_venda);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": {
+    "id_venda": 3,
+    "status_venda": "CONFIRMADO",
+    "status_descricao_venda": "Pedido confirmado",
+    "atualizado_em_venda": "2026-10-27T15:02:40.000000Z"
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PUT /pedidos/{id}/cancelar ========== -->
+    <section class="section" id="put-pedido-cancelar">
+        <div class="doc">
+            <div class="group-label">Pedidos</div>
+            <h2>Cancelar pedido</h2>
+
+            <div class="endpoint-line">
+                <span class="method put">PUT</span>
+                <span class="path">/pedidos/{id}/cancelar</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Cancela um pedido do cliente autenticado. Só é possível enquanto o status é <code>PENDENTE</code>; depois da confirmação, o cancelamento deve ser combinado com a confeitaria. Os itens também ficam como <code>CANCELADO</code>. Não precisa de corpo.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Pedido cancelado. Retorna o pedido.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Pedido não encontrado.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>O pedido não está mais <code>PENDENTE</code> (inclusive se já foi cancelado).</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X PUT {{BASE_URL}}/pedidos/3/cancelar \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function cancelarPedido(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/pedidos/${id}/cancelar`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+
+  // 422: o pedido já foi confirmado ou cancelado
+  mostrarMensagem(json.message);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Pedido cancelado com sucesso.",
+  "data": {
+    "id_venda": 3,
+    "status_venda": "CANCELADO",
+    "status_descricao_venda": "Cancelado",
+    "itens": [
+      { "id_item": 1, "status_item": "CANCELADO" }
+    ]
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Este pedido não pode mais ser cancelado. Entre em contato com a confeitaria."
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /enderecos ========== -->
+    <section class="section" id="get-enderecos">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Listar endereços</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/enderecos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Lista os endereços ativos do cliente autenticado. O endereço principal vem primeiro.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Lista de endereços (vazia se não houver nenhum).</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/enderecos \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function carregarEnderecos() {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/enderecos`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await resposta.json();
+    setEnderecos(json.data);
+  } catch (erro) {
+    console.log("Erro ao carregar endereços:", erro);
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": [
+    {
+      "id_endereco": 5,
+      "id_cliente": 4,
+      "nome_endereco": "Casa",
+      "endereco": "Rua A",
+      "numero": "10",
+      "complemento": null,
+      "bairro": "Centro",
+      "cidade": "São Paulo",
+      "uf": "SP",
+      "cep": "01001-000",
+      "principal_endereco": "SIM",
+      "status_endereco": "ATIVO"
+    }
+  ]
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /enderecos ========== -->
+    <section class="section" id="post-enderecos">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Cadastrar endereço</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/enderecos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Cadastra um endereço para o cliente autenticado. O primeiro endereço do cliente é sempre o principal. Nos demais, envie <code>principal_endereco: "SIM"</code> para torná-lo o principal (o anterior deixa de ser).</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li><div class="param-head"><span class="param-name">nome_endereco</span><span class="param-type">string · máx. 30</span><span class="param-req">obrigatório</span></div><div class="param-desc">Apelido do endereço. Ex.: Casa, Trabalho.</div></li>
+                <li><div class="param-head"><span class="param-name">endereco</span><span class="param-type">string · máx. 40</span><span class="param-req">obrigatório</span></div><div class="param-desc">Rua / logradouro.</div></li>
+                <li><div class="param-head"><span class="param-name">numero</span><span class="param-type">string · máx. 6</span><span class="param-req">obrigatório</span></div><div class="param-desc">Número.</div></li>
+                <li><div class="param-head"><span class="param-name">complemento</span><span class="param-type">string · máx. 50</span></div><div class="param-desc">Opcional.</div></li>
+                <li><div class="param-head"><span class="param-name">bairro</span><span class="param-type">string · máx. 40</span><span class="param-req">obrigatório</span></div><div class="param-desc">Bairro.</div></li>
+                <li><div class="param-head"><span class="param-name">cidade</span><span class="param-type">string · máx. 40</span><span class="param-req">obrigatório</span></div><div class="param-desc">Cidade.</div></li>
+                <li><div class="param-head"><span class="param-name">uf</span><span class="param-type">string · 2 letras</span><span class="param-req">obrigatório</span></div><div class="param-desc">Estado. Salvo em maiúsculas.</div></li>
+                <li><div class="param-head"><span class="param-name">cep</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc"><code>00000-000</code> ou <code>00000000</code>.</div></li>
+                <li><div class="param-head"><span class="param-name">principal_endereco</span><span class="param-type">SIM | NAO</span></div><div class="param-desc">Opcional. Padrão <code>NAO</code> (exceto no primeiro endereço).</div></li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">201</span></td><td>Endereço cadastrado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Dados inválidos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/enderecos \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "nome_endereco": "Casa",
+    "endereco": "Rua A",
+    "numero": "10",
+    "complemento": "Apto 2",
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "uf": "SP",
+    "cep": "01001-000"
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function salvarEndereco(form) {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/enderecos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form),
+    });
+
+    const json = await resposta.json();
+
+    // 422: json.errors traz o erro de cada campo
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao salvar endereço:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>201</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Endereço cadastrado com sucesso.",
+  "data": {
+    "id_endereco": 5,
+    "id_cliente": 4,
+    "nome_endereco": "Casa",
+    "endereco": "Rua A",
+    "numero": "10",
+    "complemento": "Apto 2",
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "uf": "SP",
+    "cep": "01001-000",
+    "principal_endereco": "SIM",
+    "status_endereco": "ATIVO"
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "O campo endereco é obrigatório.",
+  "errors": {
+    "endereco": ["O campo endereco é obrigatório."],
+    "cep": ["CEP inválido. Use 00000-000 ou 00000000."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /enderecos/{id} ========== -->
+    <section class="section" id="get-endereco">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Detalhar endereço</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/enderecos/{id}</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Retorna um endereço ativo do cliente autenticado. Endereços de outros clientes retornam <code>404</code>.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Endereço encontrado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Endereço não encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/enderecos/5 \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function carregarEndereco(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/enderecos/${id}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  if (json.success) setEndereco(json.data);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>404</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": {
+    "id_endereco": 5,
+    "id_cliente": 4,
+    "nome_endereco": "Casa",
+    "endereco": "Rua A",
+    "numero": "10",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "uf": "SP",
+    "cep": "01001-000",
+    "principal_endereco": "SIM",
+    "status_endereco": "ATIVO"
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Recurso não encontrado."
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PUT /enderecos/{id} ========== -->
+    <section class="section" id="put-endereco">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Atualizar endereço</h2>
+
+            <div class="endpoint-line">
+                <span class="method put">PUT</span>
+                <span class="method patch">PATCH</span>
+                <span class="path">/enderecos/{id}</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Atualiza um endereço do cliente autenticado. Aceita <code>PUT</code> ou <code>PATCH</code>, e basta enviar os campos que mudam. Enviar <code>principal_endereco: "SIM"</code> torna este endereço o principal; <code>"NAO"</code> é ignorado (para mudar o principal, marque outro como <code>SIM</code>).</p>
+
+            <h3>Corpo da requisição</h3>
+            <p>Os mesmos campos de <a href="#post-enderecos">Cadastrar endereço</a>, todos opcionais.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Endereço atualizado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Endereço não encontrado.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Dados inválidos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X PATCH {{BASE_URL}}/enderecos/5 \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "numero": "99"
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function atualizarEndereco(id, campos) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/enderecos/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(campos),
+  });
+
+  const json = await resposta.json();
+  mostrarMensagem(json.message);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Endereço atualizado com sucesso.",
+  "data": {
+    "id_endereco": 5,
+    "nome_endereco": "Casa",
+    "numero": "99",
+    "principal_endereco": "SIM",
+    "status_endereco": "ATIVO"
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PUT /enderecos/{id}/principal ========== -->
+    <section class="section" id="put-endereco-principal">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Definir endereço principal</h2>
+
+            <div class="endpoint-line">
+                <span class="method put">PUT</span>
+                <span class="path">/enderecos/{id}/principal</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Marca o endereço como principal. O principal anterior passa a <code>NAO</code>. Não precisa de corpo.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Principal atualizado.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Endereço não encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X PUT {{BASE_URL}}/enderecos/5/principal \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function definirPrincipal(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/enderecos/${id}/principal`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  mostrarMensagem(json.message);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Endereço principal atualizado.",
+  "data": {
+    "id_endereco": 5,
+    "nome_endereco": "Casa",
+    "principal_endereco": "SIM",
+    "status_endereco": "ATIVO"
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== DELETE /enderecos/{id} ========== -->
+    <section class="section" id="delete-endereco">
+        <div class="doc">
+            <div class="group-label">Endereços</div>
+            <h2>Remover endereço</h2>
+
+            <div class="endpoint-line">
+                <span class="method delete">DELETE</span>
+                <span class="path">/enderecos/{id}</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Remove o endereço do cliente autenticado. A remoção é lógica (o registro fica <code>INATIVO</code>, preservando pedidos antigos). Se o endereço removido era o principal, o endereço ativo mais recente assume como principal.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Endereço removido.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Endereço não encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X DELETE {{BASE_URL}}/enderecos/5 \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function removerEndereco(id) {
+  const token = await AsyncStorage.getItem("token");
+
+  const resposta = await fetch(`${API}/enderecos/${id}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await resposta.json();
+  mostrarMensagem(json.message);
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Endereço removido com sucesso."
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GET /favoritos ========== -->
+    <section class="section" id="get-favoritos">
+        <div class="doc">
+            <div class="group-label">Favoritos</div>
+            <h2>Listar favoritos</h2>
+
+            <div class="endpoint-line">
+                <span class="method get">GET</span>
+                <span class="path">/favoritos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Lista os produtos favoritados pelo cliente autenticado, do mais recente para o mais antigo. Produtos ou categorias inativos não aparecem. Cada item traz o produto completo, com a categoria.</p>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Lista de favoritos (vazia se não houver nenhum).</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl {{BASE_URL}}/favoritos \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function carregarFavoritos() {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/favoritos`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await resposta.json();
+    setFavoritos(json.data);
+  } catch (erro) {
+    console.log("Erro ao carregar favoritos:", erro);
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "data": [
+    {
+      "id_favorito": 1,
+      "id_cliente": 3,
+      "id_produto": 7,
+      "criado_em_favorito": "2026-10-27 12:58:38",
+      "status_favorito": "ATIVO",
+      "produto": {
+        "id_produto": 7,
+        "nome_produto": "Torta Limão Fit",
+        "slug_produto": "torta-limao-fit",
+        "id_categoria": 3,
+        "categoria_produto": { "id_categoria": 3 }
+      }
+    }
+  ]
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /favoritos ========== -->
+    <section class="section" id="post-favoritos">
+        <div class="doc">
+            <div class="group-label">Favoritos</div>
+            <h2>Favoritar produto</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/favoritos</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Adiciona um produto aos favoritos do cliente autenticado. Se o produto já foi favoritado e removido antes, ele é reativado. Se já está favoritado, nada muda e a resposta é <code>200</code>.</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li>
+                    <div class="param-head">
+                        <span class="param-name">id_produto</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-req">obrigatório</span>
+                    </div>
+                    <div class="param-desc">ID de um produto ativo, de categoria ativa.</div>
+                </li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">201</span></td><td>Produto adicionado (ou reativado).</td></tr>
+                    <tr><td><span class="status s2">200</span></td><td>Produto já estava nos favoritos.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>Produto não encontrado ou inativo.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td><code>id_produto</code> ausente ou inválido.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/favoritos \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "id_produto": 7
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function favoritar(idProduto) {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/favoritos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ id_produto: idProduto }),
+    });
+
+    const json = await resposta.json();
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao favoritar:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>201</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>404</button>
+                        <button class="tab" data-panel="2"><span class="dot s4"></span>422</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Produto adicionado aos favoritos.",
+  "data": {
+    "id_favorito": 1,
+    "id_cliente": 3,
+    "id_produto": 7,
+    "criado_em_favorito": "2026-10-27 12:58:38",
+    "status_favorito": "ATIVO",
+    "produto": {
+      "id_produto": 7,
+      "nome_produto": "Torta Limão Fit",
+      "slug_produto": "torta-limao-fit"
+    }
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Produto não encontrado."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Informe o produto.",
+  "errors": {
+    "id_produto": ["Informe o produto."]
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== DELETE /favoritos/{id_produto} ========== -->
+    <section class="section" id="delete-favoritos">
+        <div class="doc">
+            <div class="group-label">Favoritos</div>
+            <h2>Remover favorito</h2>
+
+            <div class="endpoint-line">
+                <span class="method delete">DELETE</span>
+                <span class="path">/favoritos/{id_produto}</span>
+                <span class="auth-tag private">🔒 Token</span>
+            </div>
+
+            <p>Remove o produto dos favoritos do cliente autenticado. A remoção é lógica: o registro fica como <code>INATIVO</code> e pode ser reativado com <code>POST /favoritos</code>.</p>
+
+            <h3>Parâmetros da URL</h3>
+            <ul class="params">
+                <li>
+                    <div class="param-head">
+                        <span class="param-name">id_produto</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-req">obrigatório</span>
+                    </div>
+                    <div class="param-desc">ID do produto (não o ID do favorito).</div>
+                </li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Favorito removido.</td></tr>
+                    <tr><td><span class="status s4">401</span></td><td>Token ausente ou inválido.</td></tr>
+                    <tr><td><span class="status s4">404</span></td><td>O produto não está nos favoritos do cliente.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X DELETE {{BASE_URL}}/favoritos/7 \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {token}"</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "@/config/api";
+
+async function desfavoritar(idProduto) {
+  const token = await AsyncStorage.getItem("token");
+
+  try {
+    const resposta = await fetch(`${API}/favoritos/${idProduto}`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const json = await resposta.json();
+    mostrarMensagem(json.message);
+  } catch (erro) {
+    console.log("Erro ao remover favorito:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>404</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Produto removido dos favoritos."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Favorito não encontrado."
 }</code></pre></div>
                 </div>
             </div>
@@ -2571,10 +4397,15 @@ async function carregarProduto() {
                 .map(([, key, value]) => ({ key, value }))
                 .filter((h) => h.key !== 'Authorization');
 
+            // Upload de arquivo: -F "campo=@/caminho/arquivo"
+            const formulario = [...linha.matchAll(/-F "([^=]+)=(@?)([^"]*)"/g)]
+                .map(([, key, arquivo, value]) => ({ key, arquivo: arquivo === '@', value }));
+
             return {
-                method: (linha.match(/-X (\w+)/) || [, 'GET'])[1],
-                url: linha.match(/curl (?:-X \w+ )?(\S+)/)[1].replace(BASE_URL, '{{base_url}}'),
+                method: (linha.match(/-X (\w+)/) || [, formulario.length ? 'POST' : 'GET'])[1],
+                url: linha.match(/curl (?:-X \w+ )?"?([^"\s]+)"?/)[1].replace(BASE_URL, '{{base_url}}'),
                 headers,
+                formulario,
                 body: corpo ? JSON.stringify(JSON.parse(corpo[1]), null, 2) : null
             };
         }
@@ -2596,6 +4427,10 @@ async function carregarProduto() {
             texto += req.privada ? '  Bearer Token: {{token}}\n' : '  No Auth\n';
             texto += '\nHeaders\n' + req.headers.map((h) => `  ${h.key}: ${h.value}`).join('\n') + '\n';
             if (req.body) texto += '\nBody › raw › JSON\n' + req.body;
+            if (req.formulario.length) {
+                texto += '\nBody › form-data\n' + req.formulario
+                    .map((f) => `  ${f.key} (${f.arquivo ? 'File' : 'Text'})`).join('\n');
+            }
 
             const bloco = codigoCurl.closest('[data-tabs]');
             const indice = bloco.querySelectorAll('.panel').length;
@@ -2614,43 +4449,120 @@ async function carregarProduto() {
         });
 
         // ---------- Postman: coleção para download ----------
+        // Troca valores fixos dos exemplos por variáveis da coleção, para o teste funcionar de verdade:
+        // ids criados pelo próprio teste, data futura e cupom opcional.
+        function comVariaveis(texto) {
+            return texto
+                .replace(/\/pedidos\/\d+/g, '/pedidos/{{pedido_id}}')
+                .replace(/\/enderecos\/\d+/g, '/enderecos/{{endereco_id}}')
+                .replace(/("id_endereco":\s*)\d+/g, '$1{{endereco_id}}')
+                .replace(/("data_entrega":\s*)"[^"]*"/g, '$1"{{data_entrega}}"')
+                .replace(/("codigo_cupom":\s*)"[^"]*"/g, '$1"{{codigo_cupom}}"');
+        }
+
+        // Guarda no Postman o id devolvido por uma criação, para as próximas requisições usarem
+        function salvarCampo(variavel, caminho) {
+            return [
+                'const json = pm.response.json();',
+                '',
+                `if (json.success) {`,
+                `  pm.collectionVariables.set('${variavel}', json.data.${caminho});`,
+                '}'
+            ];
+        }
+
         function gerarColecao() {
             const pastas = {};
 
             endpoints.forEach((req) => {
-                const caminho = req.url.replace('{{base_url}}', '').split('/').filter(Boolean);
+                let urlCompleta = comVariaveis(req.url);
+
+                // Remover endereço apaga um endereço criado só para esse teste, preservando o que os pedidos usam
+                const removeEndereco = req.method === 'DELETE' && /\/enderecos\//.test(req.url);
+                if (removeEndereco) urlCompleta = urlCompleta.replace('{{endereco_id}}', '{{endereco_remover_id}}');
+
+                const [rota, consulta] = urlCompleta.split('?');
+                const caminho = rota.replace('{{base_url}}', '').split('/').filter(Boolean);
+
+                const url = { raw: urlCompleta, host: ['{{base_url}}'], path: caminho };
+                if (consulta) {
+                    url.query = consulta.split('&').map((par) => {
+                        const [key, value = ''] = par.split('=');
+                        return { key, value };
+                    });
+                }
 
                 const item = {
                     name: req.nome,
                     request: {
                         method: req.method,
                         header: req.headers.map((h) => ({ key: h.key, value: h.value })),
-                        url: { raw: req.url, host: ['{{base_url}}'], path: caminho }
+                        url
                     }
                 };
 
                 if (!req.privada) item.request.auth = { type: 'noauth' };
 
                 if (req.body) {
-                    item.request.body = { mode: 'raw', raw: req.body, options: { raw: { language: 'json' } } };
+                    item.request.body = { mode: 'raw', raw: comVariaveis(req.body), options: { raw: { language: 'json' } } };
                 }
 
-                // Login e cadastro salvam o token automaticamente
+                if (req.formulario.length) {
+                    item.request.body = {
+                        mode: 'formdata',
+                        formdata: req.formulario.map((f) => (
+                            f.arquivo
+                                ? { key: f.key, type: 'file', src: [] }
+                                : { key: f.key, type: 'text', value: f.value }
+                        ))
+                    };
+                }
+
+                // Login e cadastro salvam o token; criar pedido e endereço salvam o id para os testes seguintes
+                let script = null;
                 if (req.url.endsWith('/auth/login') || req.url.endsWith('/auth/cadastro')) {
-                    item.event = [{
-                        listen: 'test',
+                    script = salvarCampo('token', 'token');
+                } else if (req.method === 'POST' && req.url.endsWith('/pedidos')) {
+                    script = salvarCampo('pedido_id', 'id_venda');
+                } else if (req.method === 'POST' && req.url.endsWith('/enderecos')) {
+                    script = salvarCampo('endereco_id', 'id_endereco');
+                }
+
+                item.event = [];
+                if (script) {
+                    item.event.push({ listen: 'test', script: { type: 'text/javascript', exec: script } });
+                }
+
+                if (removeEndereco) {
+                    item.event.push({
+                        listen: 'prerequest',
                         script: {
                             type: 'text/javascript',
                             exec: [
-                                'const json = pm.response.json();',
-                                '',
-                                'if (json.success) {',
-                                "  pm.collectionVariables.set('token', json.data.token);",
-                                '}'
+                                '// Cria um endereço descartável para este teste remover',
+                                'pm.sendRequest({',
+                                "  url: pm.collectionVariables.get('base_url') + '/enderecos',",
+                                "  method: 'POST',",
+                                '  header: {',
+                                "    Accept: 'application/json',",
+                                "    'Content-Type': 'application/json',",
+                                "    Authorization: 'Bearer ' + pm.collectionVariables.get('token')",
+                                '  },',
+                                '  body: {',
+                                "    mode: 'raw',",
+                                "    raw: JSON.stringify({ nome_endereco: 'Temporario', endereco: 'Rua B', numero: '2', bairro: 'Centro', cidade: 'Sao Paulo', uf: 'SP', cep: '01001-000' })",
+                                '  }',
+                                '}, (erro, resposta) => {',
+                                '  if (!erro) {',
+                                "    pm.collectionVariables.set('endereco_remover_id', resposta.json().data.id_endereco);",
+                                '  }',
+                                '});'
                             ]
                         }
-                    }];
+                    });
                 }
+
+                if (!item.event.length) delete item.event;
 
                 (pastas[req.pasta] = pastas[req.pasta] || []).push(item);
             });
@@ -2662,11 +4574,36 @@ async function carregarProduto() {
                     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
                 },
                 auth: { type: 'bearer', bearer: [{ key: 'token', value: '{{token}}', type: 'string' }] },
+                // Antes de cada requisição, calcula uma data de entrega futura (2 dias à frente, às 15h)
+                event: [{
+                    listen: 'prerequest',
+                    script: {
+                        type: 'text/javascript',
+                        exec: [
+                            'const data = new Date();',
+                            'data.setDate(data.getDate() + 2);',
+                            "const dois = (n) => String(n).padStart(2, '0');",
+                            "pm.collectionVariables.set('data_entrega', data.getFullYear() + '-' + dois(data.getMonth() + 1) + '-' + dois(data.getDate()) + ' 15:00');"
+                        ]
+                    }
+                }],
                 variable: [
                     { key: 'base_url', value: BASE_URL },
-                    { key: 'token', value: '' }
+                    { key: 'token', value: '' },
+                    { key: 'pedido_id', value: '' },
+                    { key: 'endereco_id', value: '' },
+                    { key: 'endereco_remover_id', value: '' },
+                    { key: 'data_entrega', value: '' },
+                    { key: 'codigo_cupom', value: '' }
                 ],
-                item: Object.entries(pastas).map(([name, item]) => ({ name, item }))
+                // Ordem pensada para rodar a coleção inteira: endereço e favoritos antes de fazer o pedido
+                item: Object.entries(pastas)
+                    .sort(([a], [b]) => {
+                        const ordem = ['Geral', 'Autenticação', 'Cliente', 'Endereços', 'Favoritos', 'Pedidos', 'Conteúdo', 'Catálogo'];
+                        const pos = (n) => (ordem.indexOf(n) === -1 ? ordem.length : ordem.indexOf(n));
+                        return pos(a) - pos(b);
+                    })
+                    .map(([name, item]) => ({ name, item }))
             };
         }
 
