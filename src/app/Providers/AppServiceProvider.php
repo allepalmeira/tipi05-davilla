@@ -49,6 +49,26 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        // Recuperação de senha: são só 10.000 códigos possíveis, então cada etapa tem limite
+        // por IP e, onde há e-mail, também por e-mail (para não esgotar o limite com vários IPs)
+        RateLimiter::for('recuperacao-solicitar', function (Request $request) {
+            return [
+                Limit::perMinute(5)->by($request->ip()),
+                Limit::perHour(5)->by('email|' . Str::lower((string) $request->input('email'))),
+            ];
+        });
+
+        RateLimiter::for('recuperacao-validar', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by($request->ip()),
+                Limit::perMinute(10)->by('email|' . Str::lower((string) $request->input('email'))),
+            ];
+        });
+
+        RateLimiter::for('recuperacao-redefinir', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
 
     }
 }

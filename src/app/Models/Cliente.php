@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Models;
-use App\Mail\RedefinirSenhaMail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\HasApiTokens;
 
 class Cliente extends Authenticatable
@@ -54,17 +52,6 @@ class Cliente extends Authenticatable
     public function enderecos()
     {
         return $this->hasMany(Endereco::class, 'id_cliente', 'id_cliente');
-    }
-
-    // O e-mail do cliente fica em email_cliente (o padrão do Laravel é "email")
-    public function getEmailForPasswordReset()
-    {
-        return $this->email_cliente;
-    }
-
-    public function sendPasswordResetNotification($token)
-    {
-        Mail::to($this->email_cliente)->send(new RedefinirSenhaMail($this, $token));
     }
 
     public function getAuthPassword()

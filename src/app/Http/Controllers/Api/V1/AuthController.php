@@ -7,10 +7,14 @@ use App\Models\Cliente;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+use App\Services\RecuperacaoSenhaService;
 
 class AuthController extends Controller
 {
+    public function __construct(private RecuperacaoSenhaService $recuperacao)
+    {
+    }
+
     public function login(Request $request): JsonResponse
     {
         $dados = $request->validate([
@@ -128,7 +132,7 @@ class AuthController extends Controller
         // A resposta é sempre a mesma, exista o e-mail ou não (evita descobrir quem é cliente)
         if ($cliente) {
             try {
-                Password::broker('clientes')->sendResetLink(['email_cliente' => $cliente->email_cliente]);
+                $this->recuperacao->solicitar($cliente);
             } catch (\Throwable $e) {
                 report($e);
             }
@@ -136,7 +140,43 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha.'
+            'message' => 'Se o e-mail estiver cadastrado, enviaremos um código de verificação.'
+        ]);
+    }
+
+
+    public function validarCodigo(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'email' => 'required|email',
+            'codigo' => 'required|digits:4',
+        ], [
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+            'codigo.required' => 'Informe o código.',
+            'codigo.digits' => 'O código deve ter 4 dígitos.',
+        ]);
+
+        $cliente = Cliente::where('email_cliente', $dados['email'])
+            ->where('status_cliente', 'ATIVO')
+            ->first();
+
+        $resetToken = $cliente
+            ? $this->recuperacao->validarCodigo($cliente, $dados['codigo'])
+            : null;
+
+        // Mesma resposta para e-mail inexistente, código errado, expirado ou bloqueado
+        if (!$resetToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Código inválido ou expirado.'
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Código validado com sucesso.',
+            'data' => ['reset_token' => $resetToken]
         ]);
     }
 
@@ -144,37 +184,19 @@ class AuthController extends Controller
     public function redefinirSenha(Request $request): JsonResponse
     {
         $dados = $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
+            'reset_token' => 'required|string|max:128',
             'nova_senha' => 'required|string|min:8|confirmed',
         ], [
-            'email.required' => 'Informe o e-mail.',
-            'email.email' => 'Informe um e-mail válido.',
-            'token.required' => 'Link inválido ou expirado. Solicite um novo.',
+            'reset_token.required' => 'Valide o código antes de definir a nova senha.',
             'nova_senha.required' => 'Informe a nova senha.',
             'nova_senha.min' => 'A nova senha deve ter no mínimo 8 caracteres.',
             'nova_senha.confirmed' => 'A confirmação da nova senha não confere.',
         ]);
 
-        $status = Password::broker('clientes')->reset(
-            [
-                'email_cliente' => $dados['email'],
-                'password' => $dados['nova_senha'],
-                'token' => $dados['token'],
-            ],
-            function (Cliente $cliente, string $senha) {
-                $cliente->senha_cliente = Hash::make($senha);
-                $cliente->save();
-
-                // Encerra as sessões abertas em todos os aparelhos
-                $cliente->tokens()->delete();
-            }
-        );
-
-        if ($status !== Password::PASSWORD_RESET) {
+        if (!$this->recuperacao->redefinir($dados['reset_token'], $dados['nova_senha'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Link inválido ou expirado. Solicite um novo.'
+                'message' => 'Autorização inválida ou expirada. Solicite um novo código.'
             ], 422);
         }
 

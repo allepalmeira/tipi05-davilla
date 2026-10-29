@@ -616,9 +616,15 @@
         <div class="nav-title">Autenticação</div>
         <a class="nav-link" href="#post-login"><span class="method post">POST</span> Login</a>
         <a class="nav-link" href="#post-cadastro"><span class="method post">POST</span> Cadastro</a>
-        <a class="nav-link" href="#post-esqueci-senha"><span class="method post">POST</span> Esqueci minha senha</a>
-        <a class="nav-link" href="#post-redefinir-senha"><span class="method post">POST</span> Redefinir senha</a>
         <a class="nav-link" href="#post-logout"><span class="method post">POST</span> Logout</a>
+    </div>
+
+    <div class="nav-group">
+        <div class="nav-title">Recuperação de senha</div>
+        <a class="nav-link" href="#recuperacao-senha">Visão geral do fluxo</a>
+        <a class="nav-link" href="#post-esqueci-senha"><span class="method post">POST</span> Solicitar código</a>
+        <a class="nav-link" href="#post-validar-codigo"><span class="method post">POST</span> Validar código</a>
+        <a class="nav-link" href="#post-redefinir-senha"><span class="method post">POST</span> Redefinir senha</a>
     </div>
 
     <div class="nav-group">
@@ -909,6 +915,22 @@ if (resposta.status === 401) {
                     <tr>
                         <td><code>{{codigo_cupom}}</code></td>
                         <td>Vazia por padrão (pedido sem cupom). Preencha com um cupom válido para testar o desconto.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{email_recuperacao}}</code></td>
+                        <td>Preencha com o e-mail do cliente que vai recuperar a senha (pasta <strong>Recuperação de senha</strong>).</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{codigo_recuperacao}}</code></td>
+                        <td>Preencha à mão com o código de 4 dígitos recebido por e-mail, antes de executar <strong>02 - Validar código</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{reset_token}}</code></td>
+                        <td>Preenchida automaticamente ao executar <strong>02 - Validar código</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{{nova_senha_recuperacao}}</code></td>
+                        <td>Nova senha usada em <strong>03 - Redefinir senha</strong> e conferida em <strong>04 - Login com nova senha</strong> (padrão <code>NovaSenha123</code>).</td>
                     </tr>
                 </tbody>
             </table>
@@ -1492,11 +1514,125 @@ async function cadastrar() {
         </div>
     </section>
 
+    <!-- ========== RECUPERAÇÃO DE SENHA NO APLICATIVO ========== -->
+    <section class="section" id="recuperacao-senha">
+        <div class="doc">
+            <div class="group-label">Recuperação de senha</div>
+            <h2>Recuperação de senha no aplicativo</h2>
+
+            <p>
+                Todo o processo acontece dentro do aplicativo. O e-mail serve apenas para entregar um
+                <strong>código de 4 dígitos</strong>; não há link nem página web.
+            </p>
+
+            <h3>Fluxo completo</h3>
+            <ol class="steps">
+                <li><strong>Solicitar código:</strong> o app envia o e-mail para <a href="#post-esqueci-senha"><code>POST /auth/esqueci-senha</code></a>.</li>
+                <li><strong>Receber e-mail:</strong> o cliente recebe o código de 4 dígitos (válido por 5 minutos).</li>
+                <li><strong>Validar código:</strong> o app envia e-mail e código para <a href="#post-validar-codigo"><code>POST /auth/validar-codigo</code></a>.</li>
+                <li><strong>Receber o <code>reset_token</code>:</strong> a API devolve uma autorização temporária (válida por 10 minutos, uso único).</li>
+                <li><strong>Enviar nova senha:</strong> o app envia o <code>reset_token</code> e a nova senha para <a href="#post-redefinir-senha"><code>POST /auth/redefinir-senha</code></a>.</li>
+                <li><strong>Fazer novo login:</strong> todas as sessões antigas são encerradas; o cliente entra com a nova senha em <a href="#post-login"><code>POST /auth/login</code></a>.</li>
+            </ol>
+
+            <h3>Regras de segurança</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td>Código</td><td>4 dígitos, válido por <strong>5 minutos</strong>, guardado somente como hash.</td></tr>
+                    <tr><td>Tentativas</td><td>Máximo de <strong>5 erros</strong> por código. Depois disso o código fica bloqueado, mesmo que o cliente acerte, e é preciso pedir outro.</td></tr>
+                    <tr><td>Novo código</td><td>Pedir um novo código invalida o anterior.</td></tr>
+                    <tr><td><code>reset_token</code></td><td>Válido por <strong>10 minutos</strong>, uso único, guardado somente como hash. Não é um token de login.</td></tr>
+                    <tr><td>Nova senha</td><td>Só é aceita com um <code>reset_token</code> válido: chamar <code>/auth/redefinir-senha</code> direto não funciona.</td></tr>
+                    <tr><td>Sessões</td><td>Ao trocar a senha, todos os tokens de login do cliente são removidos.</td></tr>
+                    <tr><td>Limites</td><td><code>esqueci-senha</code>: 5 por minuto por IP e 5 por hora por e-mail. <code>validar-codigo</code> e <code>redefinir-senha</code>: 10 por minuto. Acima disso a API responde <code>429</code>.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="callout">
+                Guarde o <code>reset_token</code> apenas na memória da tela (estado do React), durante a recuperação.
+                Não grave no <code>AsyncStorage</code>. Se o cliente fechar o app, ele pede um novo código.
+            </div>
+            <p>
+                As respostas de erro nunca revelam se o e-mail existe: e-mail desconhecido, código errado, expirado
+                ou bloqueado retornam sempre a mesma mensagem.
+            </p>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Fluxo no React Native</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="js">import { API } from "@/config/api";
+
+const cabecalhos = {
+  "Content-Type": "application/json",
+  Accept: "application/json",
+};
+
+// Tela 1: e-mail
+async function solicitarCodigo(email) {
+  const resposta = await fetch(`${API}/auth/esqueci-senha`, {
+    method: "POST",
+    headers: cabecalhos,
+    body: JSON.stringify({ email }),
+  });
+  const json = await resposta.json();
+  mostrarMensagem(json.message); // sempre a mesma mensagem
+  if (resposta.ok) irParaTelaDoCodigo(email);
+}
+
+// Tela 2: código de 4 dígitos
+async function validarCodigo(email, codigo) {
+  const resposta = await fetch(`${API}/auth/validar-codigo`, {
+    method: "POST",
+    headers: cabecalhos,
+    body: JSON.stringify({ email, codigo }),
+  });
+  const json = await resposta.json();
+
+  if (json.success) {
+    // Guarde só em estado, nunca em AsyncStorage
+    setResetToken(json.data.reset_token);
+    irParaTelaNovaSenha();
+  } else {
+    mostrarMensagem(json.message); // "Código inválido ou expirado."
+  }
+}
+
+// Tela 3: nova senha
+async function redefinirSenha(resetToken, novaSenha, confirmacao) {
+  const resposta = await fetch(`${API}/auth/redefinir-senha`, {
+    method: "POST",
+    headers: cabecalhos,
+    body: JSON.stringify({
+      reset_token: resetToken,
+      nova_senha: novaSenha,
+      nova_senha_confirmation: confirmacao,
+    }),
+  });
+  const json = await resposta.json();
+
+  if (json.success) {
+    setResetToken(null);
+    irParaLogin(); // todas as sessões antigas foram encerradas
+  } else {
+    mostrarMensagem(json.message);
+  }
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ========== POST /auth/esqueci-senha ========== -->
     <section class="section" id="post-esqueci-senha">
         <div class="doc">
-            <div class="group-label">Autenticação</div>
-            <h2>Esqueci minha senha</h2>
+            <div class="group-label">Recuperação de senha</div>
+            <h2>Solicitar código</h2>
 
             <div class="endpoint-line">
                 <span class="method post">POST</span>
@@ -1504,8 +1640,8 @@ async function cadastrar() {
                 <span class="auth-tag public">Público</span>
             </div>
 
-            <p>Envia ao e-mail do cliente um link para redefinir a senha. O link abre uma página web onde o cliente digita a nova senha, e vale por <strong>60 minutos</strong>.</p>
-            <p>A resposta é <strong>sempre a mesma</strong>, exista o e-mail ou não, para não revelar quem é cliente. Só é enviado e-mail a clientes ativos. Limite de 5 pedidos por minuto, e o mesmo cliente só recebe um novo link a cada 60 segundos.</p>
+            <p>Envia ao e-mail do cliente um <strong>código de 4 dígitos</strong>, válido por <strong>5 minutos</strong>. Pedir um novo código invalida o anterior.</p>
+            <p>A resposta é <strong>sempre a mesma</strong>, exista o e-mail ou não, para não revelar quem é cliente. Só clientes ativos recebem o e-mail.</p>
             <p>Este fluxo é diferente de <a href="#put-cliente-senha">Alterar senha</a>, que exige estar logado e conhecer a senha atual.</p>
 
             <h3>Corpo da requisição</h3>
@@ -1523,9 +1659,9 @@ async function cadastrar() {
             <h3>Respostas</h3>
             <table class="table">
                 <tbody>
-                    <tr><td><span class="status s2">200</span></td><td>Pedido recebido (o e-mail só é enviado se o cadastro existir).</td></tr>
+                    <tr><td><span class="status s2">200</span></td><td>Pedido recebido (o e-mail só é enviado se o cadastro existir e estiver ativo).</td></tr>
                     <tr><td><span class="status s4">422</span></td><td>E-mail ausente ou inválido.</td></tr>
-                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas. Aguarde um minuto.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas (5 por minuto por IP, 5 por hora por e-mail).</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1547,7 +1683,7 @@ async function cadastrar() {
   }'</code></pre></div>
                     <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
 
-async function esqueciSenha(email) {
+async function solicitarCodigo(email) {
   try {
     const resposta = await fetch(`${API}/auth/esqueci-senha`, {
       method: "POST",
@@ -1562,8 +1698,10 @@ async function esqueciSenha(email) {
 
     // Mostre sempre esta mensagem: ela não revela se o e-mail existe
     mostrarMensagem(json.message);
+
+    if (resposta.ok) irParaTelaDoCodigo(email);
   } catch (erro) {
-    console.log("Erro ao solicitar redefinição:", erro);
+    console.log("Erro ao solicitar código:", erro);
     mostrarMensagem("Não foi possível conectar ao servidor.");
   }
 }</code></pre></div>
@@ -1574,11 +1712,12 @@ async function esqueciSenha(email) {
                     <div class="block-head">
                         <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
                         <button class="tab" data-panel="1"><span class="dot s4"></span>422</button>
+                        <button class="tab" data-panel="2"><span class="dot s4"></span>429</button>
                         <button class="copy" type="button">Copiar</button>
                     </div>
                     <div class="panel active"><pre><code data-lang="json">{
   "success": true,
-  "message": "Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha."
+  "message": "Se o e-mail estiver cadastrado, enviaremos um código de verificação."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
   "success": false,
@@ -1587,40 +1726,43 @@ async function esqueciSenha(email) {
     "email": ["Informe um e-mail válido."]
   }
 }</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Muitas tentativas. Aguarde um minuto e tente novamente."
+}</code></pre></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ========== POST /auth/redefinir-senha ========== -->
-    <section class="section" id="post-redefinir-senha">
+    <!-- ========== POST /auth/validar-codigo ========== -->
+    <section class="section" id="post-validar-codigo">
         <div class="doc">
-            <div class="group-label">Autenticação</div>
-            <h2>Redefinir senha</h2>
+            <div class="group-label">Recuperação de senha</div>
+            <h2>Validar código</h2>
 
             <div class="endpoint-line">
                 <span class="method post">POST</span>
-                <span class="path">/auth/redefinir-senha</span>
+                <span class="path">/auth/validar-codigo</span>
                 <span class="auth-tag public">Público</span>
             </div>
 
-            <p>Define a nova senha usando o <code>token</code> recebido no link do e-mail. Normalmente <strong>quem chama este endpoint é a página web do link</strong> (<code>/redefinir-senha?token=…&amp;email=…</code>), que já vem pronta e não exige trabalho do aplicativo.</p>
-            <p>O token vale por 60 minutos e só pode ser usado uma vez. Ao redefinir, todas as sessões abertas do cliente são encerradas (é preciso fazer login de novo, em todos os aparelhos).</p>
+            <p>Confere o código de 4 dígitos recebido por e-mail. Se estiver correto, a API devolve o <code>reset_token</code>, uma autorização temporária para definir a nova senha. Ele <strong>não é um token de login</strong> e só vale para <a href="#post-redefinir-senha">Redefinir senha</a>.</p>
+            <p>O <code>reset_token</code> vale por <strong>10 minutos</strong> e só pode ser usado uma vez. O código, depois de validado, não pode ser usado de novo.</p>
+            <p>São permitidos <strong>5 erros</strong> por código. Depois disso ele fica bloqueado (mesmo que o cliente digite o código certo) e é preciso pedir outro em <a href="#post-esqueci-senha">Solicitar código</a>.</p>
 
             <h3>Corpo da requisição</h3>
             <ul class="params">
-                <li><div class="param-head"><span class="param-name">email</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">E-mail do cliente (vem no link).</div></li>
-                <li><div class="param-head"><span class="param-name">token</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Token do link.</div></li>
-                <li><div class="param-head"><span class="param-name">nova_senha</span><span class="param-type">string · mín. 8</span><span class="param-req">obrigatório</span></div><div class="param-desc">Nova senha.</div></li>
-                <li><div class="param-head"><span class="param-name">nova_senha_confirmation</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Repetição da nova senha.</div></li>
+                <li><div class="param-head"><span class="param-name">email</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">O mesmo e-mail usado em Solicitar código.</div></li>
+                <li><div class="param-head"><span class="param-name">codigo</span><span class="param-type">string · 4 dígitos</span><span class="param-req">obrigatório</span></div><div class="param-desc">Código recebido por e-mail. Envie como texto (mantém o zero à esquerda, como <code>"0472"</code>).</div></li>
             </ul>
 
             <h3>Respostas</h3>
             <table class="table">
                 <tbody>
-                    <tr><td><span class="status s2">200</span></td><td>Senha redefinida.</td></tr>
-                    <tr><td><span class="status s4">422</span></td><td>Link inválido, expirado ou já usado; ou senha inválida / não confirmada.</td></tr>
-                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas. Aguarde um minuto.</td></tr>
+                    <tr><td><span class="status s2">200</span></td><td>Código válido. Retorna o <code>reset_token</code>.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td>Código inválido, expirado ou bloqueado (a mesma mensagem para todos os casos, e também para e-mail desconhecido); ou campos ausentes / com formato errado.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas (10 por minuto).</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1631,25 +1773,172 @@ async function esqueciSenha(email) {
                 <div class="block" data-tabs>
                     <div class="block-head">
                         <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
                         <button class="copy" type="button">Copiar</button>
                     </div>
-                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/redefinir-senha \
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/validar-codigo \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "maria@email.com",
-    "token": "ebc27342699be2520f8da7b6537d0b68...",
-    "nova_senha": "novaSenha2026",
-    "nova_senha_confirmation": "novaSenha2026"
+    "codigo": "5832"
   }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
+
+async function validarCodigo(email, codigo) {
+  try {
+    const resposta = await fetch(`${API}/auth/validar-codigo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ email, codigo }),
+    });
+
+    const json = await resposta.json();
+
+    if (json.success) {
+      // Guarde somente em estado (memória), nunca em AsyncStorage
+      setResetToken(json.data.reset_token);
+      irParaTelaNovaSenha();
+    } else {
+      // 422: "Código inválido ou expirado."
+      mostrarMensagem(json.message);
+    }
+  } catch (erro) {
+    console.log("Erro ao validar código:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
                 </div>
 
                 <div class="code-title">Resposta</div>
                 <div class="block" data-tabs>
                     <div class="block-head">
                         <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
-                        <button class="tab" data-panel="1"><span class="dot s4"></span>422 link</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422 código</button>
+                        <button class="tab" data-panel="2"><span class="dot s4"></span>422 formato</button>
+                        <button class="tab" data-panel="3"><span class="dot s4"></span>429</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="json">{
+  "success": true,
+  "message": "Código validado com sucesso.",
+  "data": {
+    "reset_token": "9f2c4b7e1a6d...3b8e"
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Código inválido ou expirado."
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "O código deve ter 4 dígitos.",
+  "errors": {
+    "codigo": ["O código deve ter 4 dígitos."]
+  }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Muitas tentativas. Aguarde um minuto e tente novamente."
+}</code></pre></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POST /auth/redefinir-senha ========== -->
+    <section class="section" id="post-redefinir-senha">
+        <div class="doc">
+            <div class="group-label">Recuperação de senha</div>
+            <h2>Redefinir senha</h2>
+
+            <div class="endpoint-line">
+                <span class="method post">POST</span>
+                <span class="path">/auth/redefinir-senha</span>
+                <span class="auth-tag public">Público</span>
+            </div>
+
+            <p>Define a nova senha usando o <code>reset_token</code> recebido em <a href="#post-validar-codigo">Validar código</a>. Sem um <code>reset_token</code> válido a API recusa a troca.</p>
+            <p>O <code>reset_token</code> vale por 10 minutos e só pode ser usado uma vez. Se a senha enviada for recusada na validação (curta demais ou sem confirmação), o <code>reset_token</code> continua válido e o cliente pode tentar de novo.</p>
+            <p>Ao redefinir, <strong>todas as sessões abertas do cliente são encerradas</strong>: o próximo passo é fazer <a href="#post-login">login</a> com a nova senha.</p>
+
+            <h3>Corpo da requisição</h3>
+            <ul class="params">
+                <li><div class="param-head"><span class="param-name">reset_token</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Token devolvido por Validar código.</div></li>
+                <li><div class="param-head"><span class="param-name">nova_senha</span><span class="param-type">string · mín. 8</span><span class="param-req">obrigatório</span></div><div class="param-desc">Nova senha.</div></li>
+                <li><div class="param-head"><span class="param-name">nova_senha_confirmation</span><span class="param-type">string</span><span class="param-req">obrigatório</span></div><div class="param-desc">Repetição da nova senha.</div></li>
+            </ul>
+
+            <h3>Respostas</h3>
+            <table class="table">
+                <tbody>
+                    <tr><td><span class="status s2">200</span></td><td>Senha redefinida.</td></tr>
+                    <tr><td><span class="status s4">422</span></td><td><code>reset_token</code> inválido, expirado ou já usado; ou senha curta / não confirmada.</td></tr>
+                    <tr><td><span class="status s4">429</span></td><td>Muitas tentativas (10 por minuto).</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code">
+            <div class="code-sticky">
+                <div class="code-title">Requisição</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0">cURL</button>
+                        <button class="tab" data-panel="1">React Native</button>
+                        <button class="copy" type="button">Copiar</button>
+                    </div>
+                    <div class="panel active"><pre><code data-lang="bash">curl -X POST {{BASE_URL}}/auth/redefinir-senha \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reset_token": "TOKEN_RECEBIDO_NA_VALIDACAO",
+    "nova_senha": "NovaSenha123",
+    "nova_senha_confirmation": "NovaSenha123"
+  }'</code></pre></div>
+                    <div class="panel"><pre><code data-lang="js">import { API } from "@/config/api";
+
+async function redefinirSenha(resetToken, novaSenha, confirmacao) {
+  try {
+    const resposta = await fetch(`${API}/auth/redefinir-senha`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        reset_token: resetToken,
+        nova_senha: novaSenha,
+        nova_senha_confirmation: confirmacao,
+      }),
+    });
+
+    const json = await resposta.json();
+
+    if (json.success) {
+      setResetToken(null);
+      irParaLogin(); // todas as sessões antigas foram encerradas
+    } else {
+      // 422: senha inválida, ou autorização expirada (volte a pedir o código)
+      mostrarMensagem(json.message);
+    }
+  } catch (erro) {
+    console.log("Erro ao redefinir senha:", erro);
+    mostrarMensagem("Não foi possível conectar ao servidor.");
+  }
+}</code></pre></div>
+                </div>
+
+                <div class="code-title">Resposta</div>
+                <div class="block" data-tabs>
+                    <div class="block-head">
+                        <button class="tab active" data-panel="0"><span class="dot s2"></span>200</button>
+                        <button class="tab" data-panel="1"><span class="dot s4"></span>422 autorização</button>
                         <button class="tab" data-panel="2"><span class="dot s4"></span>422 senha</button>
+                        <button class="tab" data-panel="3"><span class="dot s4"></span>429</button>
                         <button class="copy" type="button">Copiar</button>
                     </div>
                     <div class="panel active"><pre><code data-lang="json">{
@@ -1658,7 +1947,7 @@ async function esqueciSenha(email) {
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
   "success": false,
-  "message": "Link inválido ou expirado. Solicite um novo."
+  "message": "Autorização inválida ou expirada. Solicite um novo código."
 }</code></pre></div>
                     <div class="panel"><pre><code data-lang="json">{
   "success": false,
@@ -1666,6 +1955,10 @@ async function esqueciSenha(email) {
   "errors": {
     "nova_senha": ["A confirmação da nova senha não confere."]
   }
+}</code></pre></div>
+                    <div class="panel"><pre><code data-lang="json">{
+  "success": false,
+  "message": "Muitas tentativas. Aguarde um minuto e tente novamente."
 }</code></pre></div>
                 </div>
             </div>
@@ -4460,6 +4753,31 @@ async function carregarProduto() {
                 .replace(/("codigo_cupom":\s*)"[^"]*"/g, '$1"{{codigo_cupom}}"');
         }
 
+        // Pasta "Recuperação de senha": nomes numerados na ordem do fluxo e variáveis no corpo
+        const RECUPERACAO = {
+            '/auth/esqueci-senha': {
+                nome: '01 - Solicitar código',
+                corpo: (c) => c.replace(/("email":\s*)"[^"]*"/, '$1"{{email_recuperacao}}"')
+            },
+            '/auth/validar-codigo': {
+                nome: '02 - Validar código',
+                corpo: (c) => c
+                    .replace(/("email":\s*)"[^"]*"/, '$1"{{email_recuperacao}}"')
+                    .replace(/("codigo":\s*)"[^"]*"/, '$1"{{codigo_recuperacao}}"')
+            },
+            '/auth/redefinir-senha': {
+                nome: '03 - Redefinir senha',
+                corpo: (c) => c
+                    .replace(/("reset_token":\s*)"[^"]*"/, '$1"{{reset_token}}"')
+                    .replace(/("nova_senha(?:_confirmation)?":\s*)"[^"]*"/g, '$1"{{nova_senha_recuperacao}}"')
+            }
+        };
+
+        function recuperacaoDe(url) {
+            const caminho = Object.keys(RECUPERACAO).find((c) => url.endsWith(c));
+            return caminho ? RECUPERACAO[caminho] : null;
+        }
+
         // Guarda no Postman o id devolvido por uma criação, para as próximas requisições usarem
         function salvarCampo(variavel, caminho) {
             return [
@@ -4476,6 +4794,7 @@ async function carregarProduto() {
 
             endpoints.forEach((req) => {
                 let urlCompleta = comVariaveis(req.url);
+                const recuperacao = recuperacaoDe(req.url);
 
                 // Remover endereço apaga um endereço criado só para esse teste, preservando o que os pedidos usam
                 const removeEndereco = req.method === 'DELETE' && /\/enderecos\//.test(req.url);
@@ -4493,7 +4812,7 @@ async function carregarProduto() {
                 }
 
                 const item = {
-                    name: req.nome,
+                    name: recuperacao ? recuperacao.nome : req.nome,
                     request: {
                         method: req.method,
                         header: req.headers.map((h) => ({ key: h.key, value: h.value })),
@@ -4504,7 +4823,12 @@ async function carregarProduto() {
                 if (!req.privada) item.request.auth = { type: 'noauth' };
 
                 if (req.body) {
-                    item.request.body = { mode: 'raw', raw: comVariaveis(req.body), options: { raw: { language: 'json' } } };
+                    const corpo = comVariaveis(req.body);
+                    item.request.body = {
+                        mode: 'raw',
+                        raw: recuperacao ? recuperacao.corpo(corpo) : corpo,
+                        options: { raw: { language: 'json' } }
+                    };
                 }
 
                 if (req.formulario.length) {
@@ -4522,6 +4846,8 @@ async function carregarProduto() {
                 let script = null;
                 if (req.url.endsWith('/auth/login') || req.url.endsWith('/auth/cadastro')) {
                     script = salvarCampo('token', 'token');
+                } else if (req.url.endsWith('/auth/validar-codigo')) {
+                    script = salvarCampo('reset_token', 'reset_token');
                 } else if (req.method === 'POST' && req.url.endsWith('/pedidos')) {
                     script = salvarCampo('pedido_id', 'id_venda');
                 } else if (req.method === 'POST' && req.url.endsWith('/enderecos')) {
@@ -4567,6 +4893,26 @@ async function carregarProduto() {
                 (pastas[req.pasta] = pastas[req.pasta] || []).push(item);
             });
 
+            // Último passo da recuperação: provar que a nova senha funciona (e salvar o novo token)
+            (pastas['Recuperação de senha'] = pastas['Recuperação de senha'] || []).push({
+                name: '04 - Login com nova senha',
+                request: {
+                    method: 'POST',
+                    header: [
+                        { key: 'Accept', value: 'application/json' },
+                        { key: 'Content-Type', value: 'application/json' }
+                    ],
+                    auth: { type: 'noauth' },
+                    body: {
+                        mode: 'raw',
+                        raw: JSON.stringify({ email: '{{email_recuperacao}}', senha: '{{nova_senha_recuperacao}}', device_name: 'postman' }, null, 2),
+                        options: { raw: { language: 'json' } }
+                    },
+                    url: { raw: '{{base_url}}/auth/login', host: ['{{base_url}}'], path: ['auth', 'login'] }
+                },
+                event: [{ listen: 'test', script: { type: 'text/javascript', exec: salvarCampo('token', 'token') } }]
+            });
+
             return {
                 info: {
                     name: 'API — Confeitaria DaVilla',
@@ -4594,12 +4940,16 @@ async function carregarProduto() {
                     { key: 'endereco_id', value: '' },
                     { key: 'endereco_remover_id', value: '' },
                     { key: 'data_entrega', value: '' },
-                    { key: 'codigo_cupom', value: '' }
+                    { key: 'codigo_cupom', value: '' },
+                    { key: 'email_recuperacao', value: '' },
+                    { key: 'codigo_recuperacao', value: '' },
+                    { key: 'reset_token', value: '' },
+                    { key: 'nova_senha_recuperacao', value: 'NovaSenha123' }
                 ],
                 // Ordem pensada para rodar a coleção inteira: endereço e favoritos antes de fazer o pedido
                 item: Object.entries(pastas)
                     .sort(([a], [b]) => {
-                        const ordem = ['Geral', 'Autenticação', 'Cliente', 'Endereços', 'Favoritos', 'Pedidos', 'Conteúdo', 'Catálogo'];
+                        const ordem = ['Geral', 'Autenticação', 'Recuperação de senha', 'Cliente', 'Endereços', 'Favoritos', 'Pedidos', 'Conteúdo', 'Catálogo'];
                         const pos = (n) => (ordem.indexOf(n) === -1 ? ordem.length : ordem.indexOf(n));
                         return pos(a) - pos(b);
                     })

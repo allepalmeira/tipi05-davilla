@@ -9,19 +9,16 @@ use Illuminate\Mail\Mailables\Envelope;
 
 class RedefinirSenhaMail extends Mailable
 {
-    public string $url;
-
-    public function __construct(public Cliente $cliente, string $token)
-    {
-        $this->url = route('senha.redefinir', [
-            'token' => $token,
-            'email' => $cliente->email_cliente,
-        ]);
+    public function __construct(
+        public Cliente $cliente,
+        public string $codigo,
+        public int $validadeMinutos = 5
+    ) {
     }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Redefinição de senha - Confeitaria DaVilla');
+        return new Envelope(subject: 'Seu código de verificação - Confeitaria DaVilla');
     }
 
     public function content(): Content

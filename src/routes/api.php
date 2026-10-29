@@ -23,8 +23,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/cadastro', [AuthController::class, 'cadastro'])->middleware('throttle:10,1');
 
     // RECUPERAÇÃO DE SENHA - rotas públicas
-    Route::post('/auth/esqueci-senha', [AuthController::class, 'esqueciSenha'])->middleware('throttle:5,1');
-    Route::post('/auth/redefinir-senha', [AuthController::class, 'redefinirSenha'])->middleware('throttle:10,1');
+    // Fluxo no aplicativo: código de 4 dígitos por e-mail -> reset_token -> nova senha
+    Route::post('/auth/esqueci-senha', [AuthController::class, 'esqueciSenha'])->middleware('throttle:recuperacao-solicitar');
+    Route::post('/auth/validar-codigo', [AuthController::class, 'validarCodigo'])->middleware('throttle:recuperacao-validar');
+    Route::post('/auth/redefinir-senha', [AuthController::class, 'redefinirSenha'])->middleware('throttle:recuperacao-redefinir');
 
     // ROTAS COM CREDENCIAL
     Route::middleware('auth:sanctum')->group(function () {
